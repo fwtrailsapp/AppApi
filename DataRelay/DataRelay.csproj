@@ -106,7 +106,9 @@
     <Compile Include="DataRelay.svc.cs">
       <DependentUpon>DataRelay.svc</DependentUpon>
     </Compile>
+    <Compile Include="DataRelayHelper.cs" />
     <Compile Include="DataRelayInterface.cs" />
+    <Compile Include="DataRelayObjects.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

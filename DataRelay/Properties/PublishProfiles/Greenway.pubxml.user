@@ -16,10 +16,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/10/2016 10:06:52</publishTime>
     </File>
     <File Include="bin/DataRelay.dll">
-      <publishTime>02/29/2016 22:41:55</publishTime>
+      <publishTime>03/09/2016 14:15:47</publishTime>
     </File>
     <File Include="bin/DataRelay.pdb">
-      <publishTime>02/29/2016 22:41:55</publishTime>
+      <publishTime>03/09/2016 14:15:47</publishTime>
     </File>
     <File Include="bin/log4net.dll">
       <publishTime>02/29/2016 21:36:14</publishTime>
@@ -48,6 +48,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="DataRelay.svc">
       <publishTime>02/10/2016 10:13:36</publishTime>
     </File>
+    <File Include="Global.asax">
+      <publishTime>03/07/2016 19:12:13</publishTime>
+    </File>
     <File Include="packages.config">
       <publishTime>02/29/2016 21:36:14</publishTime>
     </File>
@@ -58,7 +61,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/10/2016 10:06:52</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>02/29/2016 22:15:38</publishTime>
+      <publishTime>03/07/2016 21:28:33</publishTime>
     </File>
   </ItemGroup>
 </Project>

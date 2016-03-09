@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -25,5 +26,20 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
         string[] GetAccountInfo(string username);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "/Activity",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped)]
+        int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "/Activity/{username}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped)]
+        Activity[] GetActivitiesForUser(string username);
     }
 }
