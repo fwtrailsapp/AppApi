@@ -97,3 +97,29 @@ Returns all of the activities for the current user. Does not include paths.
     * mileage - float
     * calories_burned - int
     * exercise_type - string, an ExcerciseType datatype
+  
+## GET /Statistics/(username)
+
+Returns the aggregate of all the activities for every user in the system.
+
+### Response
+
+* HTTP 200
+  * total_calories - int
+  * total_duration - [ISO 8601 duration][1], total duration of all activities.
+  * total_distance - float, in miles, total distance traveled for all activities.
+  *
+Bike Activity
+  * total_calories - int
+  * total_duration - [ISO 8601 duration][1], total duration of all activities.
+  * total_distance - float, in miles, total distance traveled for all activities.
+  * 
+Run Activity
+  * total_calories - int
+  * total_duration - [ISO 8601 duration][1], total duration of all activities.
+  * total_distance - float, in miles, total distance traveled for all activities.
+Walk Activity
+  * total_calories - int
+  * total_duration - [ISO 8601 duration][1], total duration of all activities.
+  * total_distance - float, in miles, total distance traveled for all activities.
+  
