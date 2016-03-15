@@ -20,4 +20,16 @@ namespace DataRelay
         [DataMember]
         public string exercise_type { get; set; }
     }
+    [DataContract]
+    public class TotalStat
+    {
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public string total_duration { get; set; }
+        [DataMember]
+        public float total_distance { get; set; }
+        [DataMember]
+        public int total_calories { get; set; }
+    }
 }
