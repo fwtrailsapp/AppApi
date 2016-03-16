@@ -105,21 +105,9 @@ Returns the aggregate of all the activities for every user in the system.
 ### Response
 
 * HTTP 200
-  * total_calories - int
-  * total_duration - [ISO 8601 duration][1], total duration of all activities.
-  * total_distance - float, in miles, total distance traveled for all activities.
-  *
-Bike Activity
-  * total_calories - int
-  * total_duration - [ISO 8601 duration][1], total duration of all activities.
-  * total_distance - float, in miles, total distance traveled for all activities.
-  * 
-Run Activity
-  * total_calories - int
-  * total_duration - [ISO 8601 duration][1], total duration of all activities.
-  * total_distance - float, in miles, total distance traveled for all activities.
-Walk Activity
-  * total_calories - int
-  * total_duration - [ISO 8601 duration][1], total duration of all activities.
-  * total_distance - float, in miles, total distance traveled for all activities.
+  * array of 4 elements:
+    * type - string, "Overall", "Bike", "Run", or "Walk"
+    * total_calories - int
+    * total_duration - ISO 8601 duration
+    * total_distance - float, in miles
   
