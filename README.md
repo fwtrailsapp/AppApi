@@ -13,7 +13,7 @@ All absolute dates are sent in [ISO 8601][1] format. This is a standard which ha
 * `ExerciseType` can be `bike` or `run` or `walk`.
 * `LineString` is a string where a point is float lat and float long, separated by a comma, and each point is separated with by a space. Example: `20.3323,70.4531 21.3323,71.4531 22.3323,72.4531`
 
-# API SPEC v1
+# API SPEC v0.5
 
 ## POST /Account/Create
 
