@@ -434,5 +434,49 @@ namespace DataRelay
             return totalstats.ToArray();
         }
 
+        public Path[] GetPath()
+        {
+            _log.WriteTraceLine(this, string.Format("Retreiving all paths"));
+
+            List<Path> pathArray = null;
+
+            try
+            {
+                string connectionString = ConfigurationManager.AppSettings["connectionString"];
+
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    pathArray = new List<Path>();
+
+                    string getAllPath = "SELECT * FROM PathSegment";
+
+                    using (SqlCommand cmdGetAllPath = new SqlCommand(getAllPath, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetAllPath.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+
+                                    Path a = new Path();
+                                    a.path = reader.GetString(reader.GetOrdinal("path"));
+                                    pathArray.Add(a);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.WriteErrorLog(ex.GetType(), ex);
+            }
+
+            return pathArray.ToArray();
+        }
+
     }
 }

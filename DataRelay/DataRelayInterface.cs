@@ -48,5 +48,12 @@ namespace DataRelay
              ResponseFormat = WebMessageFormat.Json,
              BodyStyle = WebMessageBodyStyle.Wrapped)]
         TotalStat[] GetTotalStatsForUser(string username);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "/OverAllPath",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped)]
+        Path[] GetPath();
     }
 }

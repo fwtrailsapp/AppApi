@@ -1,0 +1,49 @@
+﻿html, body {
+    margin: 0;
+    padding: 0;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
+
+body, html, .panel-body-custom, .map-container, .stats-container, #contents {
+    height: 100%;
+}
+
+.navbar-custom {
+    background-color: #093254;
+}
+
+.panel-heading-custom {
+    background-image: none;
+    background-color: #093254;
+    color: #337ab7;
+}
+
+#contents {
+    padding: 100px;
+    bottom: 0;
+}
+
+.map-container {
+    float: left;
+    width: 70%;
+    background-color: #AD9867;
+    padding: 0;
+}
+
+.stats-container {
+    float: right;
+    width: 25%;
+    background-color: #AD9867;
+}
+
+footer {
+     text-align: center;
+}
+
+.footer-custom {
+    display: inline;
+}
