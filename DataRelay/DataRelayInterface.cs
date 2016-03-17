@@ -51,6 +51,13 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
+            UriTemplate = "/AllStat",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Wrapped)]
+        AllStat[] GetAllStats();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
             UriTemplate = "/OverAllPath",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]

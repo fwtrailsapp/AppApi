@@ -32,7 +32,18 @@ namespace DataRelay
         [DataMember]
         public int total_calories { get; set; }
     }
-
+    [DataContract]
+    public class AllStat
+    {
+        [DataMember]
+        public string type { get; set; }
+        [DataMember]
+        public string total_duration { get; set; }
+        [DataMember]
+        public float total_distance { get; set; }
+        [DataMember]
+        public int total_calories { get; set; }
+    }
     [DataContract]
     public class Path
     {

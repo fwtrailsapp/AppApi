@@ -478,5 +478,104 @@ namespace DataRelay
             return pathArray.ToArray();
         }
 
+        public AllStat[] GetAllStats()
+        {
+            _log.WriteTraceLine(this, string.Format("Retreiving all activity stats"));
+
+            List<Activity> activities = null;
+            List<AllStat> allStat = null;
+
+            try
+            {
+                string connectionString = ConfigurationManager.AppSettings["connectionString"];
+
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    activities = new List<Activity>();
+                    allStat = new List<AllStat>();
+
+                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode";
+
+                    using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                AllStat overall = new AllStat();
+                                AllStat bike = new AllStat();
+                                AllStat run = new AllStat();
+                                AllStat walk = new AllStat();
+                                int middleInt = 0;
+                                int middleIntBike = 0;
+                                int middleIntRun = 0;
+                                int middleIntWalk = 0;
+
+                                overall.type = "Overall";
+                                bike.type = "Bike";
+                                run.type = "Run";
+                                walk.type = "Walk";
+
+                                while (reader.Read())
+                                {
+                                    Activity a = new Activity();
+                                    a.duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString();
+                                    a.mileage = (float)reader.GetDouble(reader.GetOrdinal("distance"));
+                                    a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
+                                    a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
+
+                                    middleInt += reader.GetInt32(reader.GetOrdinal("duration"));
+
+
+                                    overall.total_duration = TimeSpan.FromSeconds(middleInt).ToString();
+                                    overall.total_distance += a.mileage;
+                                    overall.total_calories += a.calories_burned;
+
+                                    if (a.exercise_type.Equals("bike"))
+                                    {
+                                        middleIntBike += reader.GetInt32(reader.GetOrdinal("duration"));
+                                        bike.total_duration = TimeSpan.FromSeconds(middleIntBike).ToString();
+                                        bike.total_distance += a.mileage;
+                                        bike.total_calories += a.calories_burned;
+
+                                    }
+                                    else if (a.exercise_type.Equals("run"))
+                                    {
+                                        middleIntRun += reader.GetInt32(reader.GetOrdinal("duration"));
+                                        run.total_duration = TimeSpan.FromSeconds(middleIntRun).ToString();
+                                        run.total_distance += a.mileage;
+                                        run.total_calories += a.calories_burned;
+
+                                    }
+                                    else if (a.exercise_type.Equals("walk"))
+                                    {
+                                        middleIntWalk += reader.GetInt32(reader.GetOrdinal("duration"));
+                                        walk.total_duration = TimeSpan.FromSeconds(middleIntWalk).ToString();
+                                        walk.total_distance += a.mileage;
+                                        walk.total_calories += a.calories_burned;
+
+                                    }
+
+                                    activities.Add(a);
+
+                                }
+                                allStat.Add(overall);
+                                allStat.Add(bike);
+                                allStat.Add(run);
+                                allStat.Add(walk);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.WriteErrorLog(ex.GetType(), ex);
+            }
+
+            return allStat.ToArray();
+        }
     }
 }
