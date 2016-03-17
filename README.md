@@ -1,5 +1,8 @@
 # City of Fort Wayne Rivergreenways API (CRAPI) Overview
 
+All calls will be sent to 
+http://68.39.46.187:50000/GreenwayCap/DataRelay.svc/
+
 ## POST Requests
 
 For POST, all params are sent as a JSON object in the body of the request. These headers should contain `Content-Type: application/json`.
@@ -100,6 +103,20 @@ Returns all of the activities for the current user. Does not include paths.
   
 ## GET /Statistics/(username)
 
+Returns the aggregate of all the activities for a user in the system.
+
+### Response
+
+* HTTP 200
+  * array of 4 elements:
+    * type - string, "Overall", "Bike", "Run", or "Walk"
+    * total_calories - int
+    * total_duration - ISO 8601 duration
+    * total_distance - float, in miles
+
+
+## GET /AllStat
+
 Returns the aggregate of all the activities for every user in the system.
 
 ### Response
@@ -110,4 +127,11 @@ Returns the aggregate of all the activities for every user in the system.
     * total_calories - int
     * total_duration - ISO 8601 duration
     * total_distance - float, in miles
+
+
+## GET /OverAllPath
+
+Returns the path of every activity for all users
+
+  
   
