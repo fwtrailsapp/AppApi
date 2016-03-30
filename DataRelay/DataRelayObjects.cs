@@ -7,6 +7,18 @@ using System.Web;
 namespace DataRelay
 {
     [DataContract]
+    public class Account
+    {
+        [DataMember]
+        public int dob { get; set; }
+        [DataMember]
+        public int weight { get; set; }
+        [DataMember]
+        public int height { get; set; }
+        [DataMember]
+        public string sex { get; set; }
+    }
+    [DataContract]
     public class Activity
     {
         [DataMember]

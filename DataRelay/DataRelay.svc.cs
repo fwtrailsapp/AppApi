@@ -77,44 +77,46 @@ namespace DataRelay
             return 500;
         }
 
-        public string[] GetAccountInfo(string username)
+        public Account[] GetAccountInfo(string username)
         {
             _log.WriteTraceLine(this, string.Format("Getting account information for '{0}'.", username));
 
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-            int dob = -1, weight = -1, height =-1;
-            string sex = string.Empty;
-
+            List<Account> account = null;
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
                     sqlConn.Open();
 
+                    account = new List<Account>();
+
                     string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [username]=@username";
 
                     using (SqlCommand cmdGetUserInfo = new SqlCommand(getUserInfo, sqlConn))
                     {
                         cmdGetUserInfo.Parameters.AddWithValue("@username", username);
-                        
+
                         using (SqlDataReader reader = cmdGetUserInfo.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
+                                Account a = new Account();
                                 reader.Read();
-                                
+
                                 if (!reader["dob"].Equals(DBNull.Value))
-                                    dob = reader.GetInt32(reader.GetOrdinal("dob"));
+                                    a.dob = reader.GetInt32(reader.GetOrdinal("dob"));
 
                                 if (!reader["weight"].Equals(DBNull.Value))
-                                    weight = reader.GetInt32(reader.GetOrdinal("weight"));
+                                    a.weight = reader.GetInt32(reader.GetOrdinal("weight"));
 
                                 if (!reader["sex"].Equals(DBNull.Value))
-                                    sex = reader.GetString(reader.GetOrdinal("sex"));
+                                    a.sex = reader.GetString(reader.GetOrdinal("sex"));
 
                                 if (!reader["height"].Equals(DBNull.Value))
-                                    height = reader.GetInt32(reader.GetOrdinal("height"));
+                                    a.height = reader.GetInt32(reader.GetOrdinal("height"));
+
+                                account.Add(a);
                             }
                             reader.Close();
                         }
@@ -126,10 +128,8 @@ namespace DataRelay
             {
                 _log.WriteErrorLog(ex.GetType(), ex);
             }
-            
-            string[] response = new string[5] { "200", dob.ToString(), weight.ToString(), sex, height.ToString() };
 
-            return response;
+            return account.ToArray();
         }
 
         public int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)

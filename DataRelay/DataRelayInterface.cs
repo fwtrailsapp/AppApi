@@ -25,7 +25,7 @@ namespace DataRelay
             UriTemplate = "/Account/{username}",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
-        string[] GetAccountInfo(string username);
+        Account[] GetAccountInfo(string username);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
