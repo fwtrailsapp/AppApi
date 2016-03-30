@@ -14,7 +14,7 @@ namespace DataRelay
     {
         [OperationContract]
         [WebInvoke(Method = "POST",
-            UriTemplate = "/Account/Create",
+            UriTemplate = "trails/api/1/Account/Create",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
@@ -22,14 +22,14 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "/Account/{username}",
+            UriTemplate = "trails/api/1/Account/{username}",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
         Account[] GetAccountInfo(string username);
 
         [OperationContract]
         [WebInvoke(Method = "POST",
-            UriTemplate = "/Activity",
+            UriTemplate = "trails/api/1/Activity",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
@@ -37,28 +37,28 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "/Activity/{username}",
+            UriTemplate = "trails/api/1/Activity/{username}",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
         Activity[] GetActivitiesForUser(string username);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-             UriTemplate = "/Statistics/{username}",
+             UriTemplate = "trails/api/1/Statistics/{username}",
              ResponseFormat = WebMessageFormat.Json,
              BodyStyle = WebMessageBodyStyle.Wrapped)]
         TotalStat[] GetTotalStatsForUser(string username);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "/AllStat",
+            UriTemplate = "trails/api/1/Statistics/All",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
         AllStat[] GetAllStats();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "/OverAllPath",
+            UriTemplate = "trails/api/1/Path/All",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Wrapped)]
         Path[] GetPath();
