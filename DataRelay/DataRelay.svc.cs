@@ -69,6 +69,10 @@ namespace DataRelay
                     }
                 }
             }
+            catch (WebFaultException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _log.WriteErrorLog(ex.GetType(), ex);
