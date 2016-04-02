@@ -69,13 +69,11 @@ namespace DataRelay
                     }
                 }
             }
-            catch (WebFaultException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
                 _log.WriteErrorLog(ex.GetType(), ex);
+                if (ex is WebFaultException)
+                    throw;
                 throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
             }
         }
