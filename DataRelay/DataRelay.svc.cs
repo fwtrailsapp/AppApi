@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 
 namespace DataRelay
 {
@@ -16,7 +18,7 @@ namespace DataRelay
             _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
         }
         
-        public int CreateNewAccount(string username, string password, int dob, int weight, string sex, int height)
+        public void CreateNewAccount(string username, string password, int dob, int weight, string sex, int height)
         {
             _log.WriteTraceLine(this, string.Format("Creating new account: {0}", username));
 
@@ -31,7 +33,7 @@ namespace DataRelay
                     if (accountExists(sqlConn, username))
                     {
                         _log.WriteTraceLine(this, string.Format("Account '{0}' already exists!", username));
-                        return 401;
+                        throw new WebFaultException<string>("Account already exists", HttpStatusCode.Conflict);
                     }
 
                     string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, dob, weight, sex, height) VALUES (@accountID, @username, @password, @dob, @weight, @sex, @height)";
@@ -59,22 +61,18 @@ namespace DataRelay
                         if (result == 1)
                         {
                             _log.WriteTraceLine(this, string.Format("Account '{0}' created successfully!", username));
-                            return 200;
+                            return;
                         }
-                        else
-                        {
-                            _log.WriteTraceLine(this, string.Format("Account '{0}' was not created!", username));
-                            return 402;
-                        }
+                        _log.WriteTraceLine(this, string.Format("Account '{0}' was not created!", username));
+                        throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
                     }
                 }
             }
             catch (Exception ex)
             {
                 _log.WriteErrorLog(ex.GetType(), ex);
+                throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
             }
-
-            return 500;
         }
 
         public Account[] GetAccountInfo(string username)
