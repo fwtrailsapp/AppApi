@@ -121,7 +121,12 @@ namespace DataRelay
 
         public Account[] GetAccountInfo()
         {
-            _log.WriteTraceLine(this, $"Getting account information for '{username}'.");
+            _log.WriteTraceLine(this, $"Getting account information for '{RequestAccountId}'.");
+            if (RequestAccountId == null)
+            {
+                _log.WriteDebugLog("Client did not specifiy a login token.");
+                throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
+            }
 
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
             List<Account> account = null;
@@ -133,11 +138,11 @@ namespace DataRelay
 
                     account = new List<Account>();
 
-                    string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [username]=@username";
+                    string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [AccountId]=@accountId";
 
                     using (SqlCommand cmdGetUserInfo = new SqlCommand(getUserInfo, sqlConn))
                     {
-                        cmdGetUserInfo.Parameters.AddWithValue("@username", username);
+                        cmdGetUserInfo.Parameters.AddWithValue("@accountId", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetUserInfo.ExecuteReader())
                         {
