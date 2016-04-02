@@ -78,5 +78,10 @@ namespace DataRelay
 
             return lookUpID;
         }
+
+        private static string GenerateAccountGuid()
+        {
+            return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace DataRelay
 
                     string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
                     
-                    string accountID = Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
+                    string accountID = GenerateAccountGuid();
 
                     using (SqlCommand cmdCreateAcct = new SqlCommand(createAcctQuery, sqlConn))
                     {
@@ -79,7 +79,7 @@ namespace DataRelay
                 throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
             }
         }
-        
+
         public LoginToken Login(string username, string password)
         {
             _log.WriteTraceLine(this, $"Logging in an account: {username}");
