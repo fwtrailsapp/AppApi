@@ -58,13 +58,14 @@ namespace DataRelay
                         
                         int result = cmdCreateAcct.ExecuteNonQuery();
 
-                        if (result == 1)
+                        if (result != 1)
                         {
-                            _log.WriteTraceLine(this, $"Account '{username}' created successfully!");
-                            return;
+                            _log.WriteTraceLine(this, $"Account '{username}' was not created!");
+                            throw new WebFaultException<string>("Account couldn't be created.",
+                                HttpStatusCode.InternalServerError);
                         }
-                        _log.WriteTraceLine(this, $"Account '{username}' was not created!");
-                        throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
+
+                        _log.WriteTraceLine(this, $"Account '{username}' created successfully!");
                     }
                 }
             }
