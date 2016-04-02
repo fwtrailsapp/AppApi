@@ -21,6 +21,14 @@ namespace DataRelay
         void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height);
 
         [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "trails/api/1/Login",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        LoginToken Login(string username, string password);
+
+        [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Account/{username}",
             ResponseFormat = WebMessageFormat.Json,

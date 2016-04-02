@@ -12,12 +12,14 @@ namespace DataRelay
     public partial class DataRelay : IDataRelay
     {
         private Logger _log;
+        private AccountSessionManager sessionManager;
 
         public DataRelay()
         {
             _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            sessionManager = new AccountSessionManager();
         }
-        
+
         public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
         {
             _log.WriteTraceLine(this, $"Creating new account: {username}");
@@ -76,6 +78,11 @@ namespace DataRelay
                     throw;
                 throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
             }
+        }
+        
+        public LoginToken Login(string username, string password)
+        {
+            throw new NotImplementedException();
         }
 
         public Account[] GetAccountInfo(string username)
