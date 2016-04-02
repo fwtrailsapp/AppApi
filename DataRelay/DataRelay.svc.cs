@@ -20,7 +20,7 @@ namespace DataRelay
         
         public void CreateNewAccount(string username, string password, int dob, int weight, string sex, int height)
         {
-            _log.WriteTraceLine(this, string.Format("Creating new account: {0}", username));
+            _log.WriteTraceLine(this, $"Creating new account: {username}");
 
             try
             {
@@ -32,7 +32,7 @@ namespace DataRelay
 
                     if (accountExists(sqlConn, username))
                     {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' already exists!", username));
+                        _log.WriteTraceLine(this, $"Account '{username}' already exists!");
                         throw new WebFaultException<string>("Account already exists", HttpStatusCode.Conflict);
                     }
 
@@ -60,10 +60,10 @@ namespace DataRelay
 
                         if (result == 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Account '{0}' created successfully!", username));
+                            _log.WriteTraceLine(this, $"Account '{username}' created successfully!");
                             return;
                         }
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' was not created!", username));
+                        _log.WriteTraceLine(this, $"Account '{username}' was not created!");
                         throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
                     }
                 }
@@ -77,7 +77,7 @@ namespace DataRelay
 
         public Account[] GetAccountInfo(string username)
         {
-            _log.WriteTraceLine(this, string.Format("Getting account information for '{0}'.", username));
+            _log.WriteTraceLine(this, $"Getting account information for '{username}'.");
 
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
             List<Account> account = null;
@@ -132,7 +132,7 @@ namespace DataRelay
 
         public int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
-            _log.WriteTraceLine(this, string.Format("Creating a new activity for '{0}'!", username));
+            _log.WriteTraceLine(this, $"Creating a new activity for '{username}'!");
 
             try
             {
@@ -147,7 +147,7 @@ namespace DataRelay
 
                     if (!accountExists(sqlConn, username))
                     {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
+                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
                         return 401;
                     }
                     else
@@ -175,7 +175,7 @@ namespace DataRelay
 
                         if (result != 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Activity could not be created for '{0}'!", username));
+                            _log.WriteTraceLine(this, $"Activity could not be created for '{username}'!");
                             return 500;
                         }
                     }
@@ -206,14 +206,16 @@ namespace DataRelay
                             }
                             else
                             {
-                                _log.WriteTraceLine(this, string.Format("ActivityID from new Activity for '{0}' could not be retrieved!", username));
+                                _log.WriteTraceLine(this,
+                                    $"ActivityID from new Activity for '{username}' could not be retrieved!");
                                 return 500;
                             }
                         }
 
                         if (activityID == -1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Unknown error occured upon retreiving ActivityID for '{0}'!", username));
+                            _log.WriteTraceLine(this,
+                                $"Unknown error occured upon retreiving ActivityID for '{username}'!");
                             return 501;
                         }
                     }
@@ -233,7 +235,7 @@ namespace DataRelay
 
                         if (result != 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Failed to create PathSegment record for '{0}'!", username));
+                            _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{username}'!");
                             return 500;
                         }
                     }
@@ -243,7 +245,7 @@ namespace DataRelay
                     sqlConn.Close();
                 }
 
-                _log.WriteTraceLine(this, string.Format("Activity succesfully created for '{0}'!", username));
+                _log.WriteTraceLine(this, $"Activity succesfully created for '{username}'!");
 
                 return 200;
             }
@@ -257,7 +259,7 @@ namespace DataRelay
 
         public Activity[] GetActivitiesForUser(string username)
         {
-            _log.WriteTraceLine(this, string.Format("Retreiving all activities for user '{0}'", username));
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
 
             List<Activity> activities = null;
 
@@ -273,7 +275,7 @@ namespace DataRelay
 
                     if (!accountExists(sqlConn, username))
                     {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
+                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
                         return null;
                     }
                     else
@@ -320,7 +322,7 @@ namespace DataRelay
 
         public TotalStat[] GetTotalStatsForUser(string username)
         {
-            _log.WriteTraceLine(this, string.Format("Retreiving all activities for user '{0}'", username));
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
 
             List<Activity> activities = null;
             List<TotalStat> totalstats = null;
@@ -337,7 +339,7 @@ namespace DataRelay
 
                     if (!accountExists(sqlConn, username))
                     {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
+                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
                         return null;
                     }
                     else
