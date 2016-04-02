@@ -17,7 +17,7 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Account/Create",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Bare)]
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
         void CreateNewAccount(string username, string password, int dob, int weight, string sex, int height);
 
         [OperationContract]
@@ -32,7 +32,7 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Activity",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Bare)]
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
         int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
 
         [OperationContract]
