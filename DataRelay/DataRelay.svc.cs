@@ -82,7 +82,41 @@ namespace DataRelay
         
         public LoginToken Login(string username, string password)
         {
-            throw new NotImplementedException();
+            _log.WriteTraceLine(this, $"Logging in an account: {username}");
+            try
+            {
+                string connectionString = ConfigurationManager.AppSettings["connectionString"];
+
+                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                {
+                    sqlConn.Open();
+
+                    //find the account's guid
+                    var acctGuid = getAccountGuid(sqlConn, username);
+                    if (acctGuid == string.Empty)
+                    {
+                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
+                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                    }
+
+                    //TODO: check password
+                    if (false)
+                    {
+                        _log.WriteTraceLine(this, $"Account '{username}' specified the wrong password!");
+                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                    }
+
+                    var token = _sessionManager.Add(acctGuid);
+                    return token;
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.WriteErrorLog(ex.GetType(), ex);
+                if (ex is WebFaultException)
+                    throw;
+                throw new WebFaultException<string>("Account couldn't be logged in.", HttpStatusCode.InternalServerError);
+            }
         }
 
         public Account[] GetAccountInfo(string username)
