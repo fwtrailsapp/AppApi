@@ -119,7 +119,7 @@ namespace DataRelay
             }
         }
 
-        public Account[] GetAccountInfo(string username)
+        public Account[] GetAccountInfo()
         {
             _log.WriteTraceLine(this, $"Getting account information for '{username}'.");
 
@@ -174,7 +174,7 @@ namespace DataRelay
             return account.ToArray();
         }
 
-        public int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
+        public int CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
             _log.WriteTraceLine(this, $"Creating a new activity for '{username}'!");
 
@@ -301,7 +301,7 @@ namespace DataRelay
             return 500;
         }
 
-        public Activity[] GetActivitiesForUser(string username)
+        public Activity[] GetActivitiesForUser()
         {
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
 
@@ -364,7 +364,7 @@ namespace DataRelay
             return activities.ToArray();
         }
 
-        public TotalStat[] GetTotalStatsForUser(string username)
+        public TotalStat[] GetTotalStatsForUser()
         {
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
 

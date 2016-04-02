@@ -30,10 +30,10 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "trails/api/1/Account/{username}",
+            UriTemplate = "trails/api/1/Account",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
-        Account[] GetAccountInfo(string username);
+        Account[] GetAccountInfo();
 
         [OperationContract]
         [WebInvoke(Method = "POST",
@@ -41,21 +41,21 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
+        int CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "trails/api/1/Activity/{username}",
+            UriTemplate = "trails/api/1/Activity",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
-        Activity[] GetActivitiesForUser(string username);
+        Activity[] GetActivitiesForUser();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
-             UriTemplate = "trails/api/1/Statistics/{username}",
+             UriTemplate = "trails/api/1/Statistics",
              ResponseFormat = WebMessageFormat.Json,
              BodyStyle = WebMessageBodyStyle.Bare)]
-        TotalStat[] GetTotalStatsForUser(string username);
+        TotalStat[] GetTotalStatsForUser();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
