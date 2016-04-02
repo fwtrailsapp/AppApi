@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Web;
 
 namespace DataRelay
@@ -102,6 +104,15 @@ namespace DataRelay
                     //the account hasn't logged in
                     return null;
                 }
+            }
+        }
+
+        private void RequireLoginToken()
+        {
+            if (RequestAccountId == null)
+            {
+                _log.WriteDebugLog("Client did not specifiy a login token.");
+                throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
             }
         }
     }

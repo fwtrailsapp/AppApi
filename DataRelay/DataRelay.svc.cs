@@ -122,11 +122,7 @@ namespace DataRelay
         public Account[] GetAccountInfo()
         {
             _log.WriteTraceLine(this, $"Getting account information for '{RequestAccountId}'.");
-            if (RequestAccountId == null)
-            {
-                _log.WriteDebugLog("Client did not specifiy a login token.");
-                throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
-            }
+            RequireLoginToken();
 
             string connectionString = ConfigurationManager.AppSettings["connectionString"];
             List<Account> account = null;
