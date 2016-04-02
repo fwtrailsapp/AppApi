@@ -18,7 +18,7 @@ namespace DataRelay
             _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
         }
         
-        public void CreateNewAccount(string username, string password, int dob, int weight, string sex, int height)
+        public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
         {
             _log.WriteTraceLine(this, $"Creating new account: {username}");
 
@@ -36,7 +36,7 @@ namespace DataRelay
                         throw new WebFaultException<string>("Account already exists", HttpStatusCode.Conflict);
                     }
 
-                    string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, dob, weight, sex, height) VALUES (@accountID, @username, @password, @dob, @weight, @sex, @height)";
+                    string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
                     
                     string accountID = Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
 
@@ -47,10 +47,10 @@ namespace DataRelay
                         cmdCreateAcct.Parameters.AddWithValue("@username", username);
                         cmdCreateAcct.Parameters.AddWithValue("@password", password);
 
-                        if (!dob.Equals(null))
-                            cmdCreateAcct.Parameters.AddWithValue("@dob", dob);
+                        if (!birthyear.Equals(null))
+                            cmdCreateAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
-                            cmdCreateAcct.Parameters.AddWithValue("@dob", DBNull.Value);
+                            cmdCreateAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
                         cmdCreateAcct.Parameters.AddWithValue("@weight", weight);
                         cmdCreateAcct.Parameters.AddWithValue("@sex", sex);
@@ -107,8 +107,8 @@ namespace DataRelay
                                 Account a = new Account();
                                 reader.Read();
 
-                                if (!reader["dob"].Equals(DBNull.Value))
-                                    a.dob = reader.GetInt32(reader.GetOrdinal("dob"));
+                                if (!reader["birthyear"].Equals(DBNull.Value))
+                                    a.birthyear = reader.GetInt32(reader.GetOrdinal("birthyear"));
 
                                 if (!reader["weight"].Equals(DBNull.Value))
                                     a.weight = reader.GetInt32(reader.GetOrdinal("weight"));

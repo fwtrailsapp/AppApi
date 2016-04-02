@@ -18,7 +18,7 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        void CreateNewAccount(string username, string password, int dob, int weight, string sex, int height);
+        void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
