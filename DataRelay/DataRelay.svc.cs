@@ -11,8 +11,8 @@ namespace DataRelay
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true, InstanceContextMode = InstanceContextMode.PerCall)]
     public partial class DataRelay : IDataRelay
     {
-        private Logger _log;
-        private AccountSessionManager _sessionManager;
+        private readonly Logger _log;
+        private readonly AccountSessionManager _sessionManager;
 
         public DataRelay()
         {
