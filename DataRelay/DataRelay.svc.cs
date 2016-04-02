@@ -12,12 +12,12 @@ namespace DataRelay
     public partial class DataRelay : IDataRelay
     {
         private Logger _log;
-        private AccountSessionManager sessionManager;
+        private AccountSessionManager _sessionManager;
 
         public DataRelay()
         {
             _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-            sessionManager = new AccountSessionManager();
+            _sessionManager = new AccountSessionManager();
         }
 
         public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
