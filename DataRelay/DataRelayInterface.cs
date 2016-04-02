@@ -24,7 +24,7 @@ namespace DataRelay
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Account/{username}",
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped)]
+            BodyStyle = WebMessageBodyStyle.Bare)]
         Account[] GetAccountInfo(string username);
 
         [OperationContract]
@@ -32,35 +32,35 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Activity",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped)]
+            BodyStyle = WebMessageBodyStyle.Bare)]
         int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Activity/{username}",
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped)]
+            BodyStyle = WebMessageBodyStyle.Bare)]
         Activity[] GetActivitiesForUser(string username);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
              UriTemplate = "trails/api/1/Statistics/{username}",
              ResponseFormat = WebMessageFormat.Json,
-             BodyStyle = WebMessageBodyStyle.Wrapped)]
+             BodyStyle = WebMessageBodyStyle.Bare)]
         TotalStat[] GetTotalStatsForUser(string username);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Statistics/All",
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped)]
+            BodyStyle = WebMessageBodyStyle.Bare)]
         AllStat[] GetAllStats();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Path/All",
             ResponseFormat = WebMessageFormat.Json,
-            BodyStyle = WebMessageBodyStyle.Wrapped)]
+            BodyStyle = WebMessageBodyStyle.Bare)]
         Path[] GetPath();
     }
 }
