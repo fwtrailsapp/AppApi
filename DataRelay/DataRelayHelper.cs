@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.ServiceModel;
@@ -78,6 +79,30 @@ namespace DataRelay
             return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
         }
 
-        private static string RequestLoginToken => HttpContext.Current.Request.Headers["Trails-Api-Key"];
+        private string RequestAccountId
+        {
+            get
+            {
+                var tokenStr = HttpContext.Current.Request.Headers["Trails-Api-Key"];
+                if (tokenStr == null)
+                    return null;
+
+                Guid g;
+                if (!Guid.TryParse(tokenStr, out g))
+                    return null;
+
+                var token = new LoginToken(g);
+
+                try
+                {
+                    return _sessionManager.GetAccountIdFromToken(token);
+                }
+                catch (KeyNotFoundException)
+                {
+                    //the account hasn't logged in
+                    return null;
+                }
+            }
+        }
     }
 }
