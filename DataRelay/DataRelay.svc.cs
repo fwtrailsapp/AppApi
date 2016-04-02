@@ -92,7 +92,7 @@ namespace DataRelay
                     sqlConn.Open();
 
                     //find the account's guid
-                    var acctGuid = getAccountGuid(sqlConn, username);
+                    var acctGuid = GetAccountGuid(sqlConn, username);
                     if (acctGuid == string.Empty)
                     {
                         _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
@@ -196,7 +196,7 @@ namespace DataRelay
                     }
                     else
                     {
-                        acctGuid = getAccountGuid(sqlConn, username);
+                        acctGuid = GetAccountGuid(sqlConn, username);
                     }
 
                     #region -- CREATE ACTIVITY --
@@ -324,7 +324,7 @@ namespace DataRelay
                     }
                     else
                     {
-                        accountUserID = getAccountGuid(sqlConn, username);
+                        accountUserID = GetAccountGuid(sqlConn, username);
                     }
 
                     activities = new List<Activity>();
@@ -388,7 +388,7 @@ namespace DataRelay
                     }
                     else
                     {
-                        accountUserID = getAccountGuid(sqlConn, username);
+                        accountUserID = GetAccountGuid(sqlConn, username);
                     }
 
                     activities = new List<Activity>();

@@ -29,29 +29,22 @@ namespace DataRelay
             }
         }
 
-        public string getAccountGuid(SqlConnection sqlConn, string username)
+        private static string GetAccountGuid(SqlConnection sqlConn, string username)
         {
-            string guid = string.Empty;
+            const string queryGetGuid = "SELECT TOP 1 [accountID] FROM [Account] where [username]=@username";
 
-            string queryGetGuid = "SELECT TOP 1 [accountID] FROM [Account] where [username]=@username";
-
-            using (SqlCommand cmdQueryGetGuid = new SqlCommand(queryGetGuid, sqlConn))
+            using (var cmdQueryGetGuid = new SqlCommand(queryGetGuid, sqlConn))
             {
                 cmdQueryGetGuid.Parameters.AddWithValue("username", username);
 
-                using (SqlDataReader reader = cmdQueryGetGuid.ExecuteReader())
+                using (var reader = cmdQueryGetGuid.ExecuteReader())
                 {
-                    if (reader.HasRows)
-                    {
-                        reader.Read();
-
-                        if (!reader["accountID"].Equals(DBNull.Value))
-                            guid = reader.GetString(reader.GetOrdinal("accountID"));
-                    }
+                    if (!reader.HasRows) return string.Empty;
+                    if (!reader.Read()) return string.Empty;
+                    if (reader["accountID"].Equals(DBNull.Value)) return string.Empty;
+                    return reader.GetString(reader.GetOrdinal("accountID"));
                 }
             }
-
-                return guid;
         }
 
         public int getExerciseTypeID(SqlConnection sqlConn, string exercise_type)
