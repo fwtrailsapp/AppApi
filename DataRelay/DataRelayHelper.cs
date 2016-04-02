@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.ServiceModel;
+using System.Web;
 
 namespace DataRelay
 {
@@ -76,5 +77,7 @@ namespace DataRelay
         {
             return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
         }
+
+        private static string RequestLoginToken => HttpContext.Current.Request.Headers["Trails-Api-Key"];
     }
 }
