@@ -71,10 +71,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
-                if (ex is WebFaultException<string>)
-                    throw;
-                throw new WebFaultException<string>("Account couldn't be created.", HttpStatusCode.InternalServerError);
+                GenericErrorHandler(ex, "Account couldn't be created.");
             }
         }
 
@@ -108,10 +105,8 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
-                if (ex is WebFaultException)
-                    throw;
-                throw new WebFaultException<string>("Account couldn't be logged in.", HttpStatusCode.InternalServerError);
+                GenericErrorHandler(ex, "Account couldn't be logged in.");
+                return null; //will never be hit because genericerrorhandler always throws
             }
         }
 
@@ -161,13 +156,13 @@ namespace DataRelay
                     }
                     sqlConn.Close();
                 }
+                return account.ToArray();
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get account info.");
+                return null; //will never be hit because genericerrorhandler always throws
             }
-
-            return account.ToArray();
         }
 
         public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
@@ -271,10 +266,8 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Activity could not be created.");
             }
-
-            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
         }
 
         public Activity[] GetActivitiesForUser()
@@ -321,7 +314,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Activities could not be retrieved.");
             }
 
             return activities.ToArray();
@@ -422,7 +415,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get total stats.");
             }
 
             return totalstats.ToArray();
@@ -464,7 +457,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get all paths");
             }
 
             return pathArray.ToArray();

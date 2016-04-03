@@ -117,5 +117,13 @@ namespace DataRelay
         }
 
         private static string ConnectionString => ConfigurationManager.AppSettings["connectionString"];
+        
+        private void GenericErrorHandler(Exception ex, string detail)
+        {
+            _log.WriteErrorLog(ex.GetType(), ex);
+            if (ex is WebFaultException<string>)
+                throw ex;
+            throw new WebFaultException<string>(detail, HttpStatusCode.InternalServerError);
+        }
     }
 }
