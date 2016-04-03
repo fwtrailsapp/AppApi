@@ -177,7 +177,7 @@ namespace DataRelay
 
         public int CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
-            _log.WriteTraceLine(this, $"Creating a new activity for '{username}'!");
+            _log.WriteTraceLine(this, $"Creating a new activity for '{RequestAccountId}'!");
 
             try
             {
@@ -188,18 +188,6 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string acctGuid = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
-                        return 401;
-                    }
-                    else
-                    {
-                        acctGuid = GetAccountGuid(sqlConn, username);
-                    }
-
                     #region -- CREATE ACTIVITY --
                     int exerciseLookupId = getExerciseTypeID(sqlConn, exercise_type);
                     DateTime timeStamp = Convert.ToDateTime(time_started);
@@ -209,7 +197,7 @@ namespace DataRelay
 
                     using (SqlCommand cmdCreateActivity = new SqlCommand(createActivityQuery, sqlConn))
                     {
-                        cmdCreateActivity.Parameters.AddWithValue("@accountUserID", acctGuid);
+                        cmdCreateActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
                         cmdCreateActivity.Parameters.AddWithValue("@exerciseType", exerciseLookupId);
                         cmdCreateActivity.Parameters.AddWithValue("@startTime", timeStamp);
                         cmdCreateActivity.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
@@ -220,7 +208,7 @@ namespace DataRelay
 
                         if (result != 1)
                         {
-                            _log.WriteTraceLine(this, $"Activity could not be created for '{username}'!");
+                            _log.WriteTraceLine(this, $"Activity could not be created for '{RequestAccountId}'!");
                             return 500;
                         }
                     }
@@ -235,7 +223,7 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetActivityID = new SqlCommand(getActivityIDQuery, sqlConn))
                     {
-                        cmdGetActivityID.Parameters.AddWithValue("@accountUserID", acctGuid);
+                        cmdGetActivityID.Parameters.AddWithValue("@accountUserID", RequestAccountId);
                         cmdGetActivityID.Parameters.AddWithValue("@exerciseType", exerciseLookupId);
                         cmdGetActivityID.Parameters.AddWithValue("@startTime", timeStamp);
                         cmdGetActivityID.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
@@ -252,7 +240,7 @@ namespace DataRelay
                             else
                             {
                                 _log.WriteTraceLine(this,
-                                    $"ActivityID from new Activity for '{username}' could not be retrieved!");
+                                    $"ActivityID from new Activity for '{RequestAccountId}' could not be retrieved!");
                                 return 500;
                             }
                         }
@@ -260,7 +248,7 @@ namespace DataRelay
                         if (activityID == -1)
                         {
                             _log.WriteTraceLine(this,
-                                $"Unknown error occured upon retreiving ActivityID for '{username}'!");
+                                $"Unknown error occured upon retreiving ActivityID for '{RequestAccountId}'!");
                             return 501;
                         }
                     }
@@ -280,7 +268,7 @@ namespace DataRelay
 
                         if (result != 1)
                         {
-                            _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{username}'!");
+                            _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{RequestAccountId}'!");
                             return 500;
                         }
                     }
@@ -290,7 +278,7 @@ namespace DataRelay
                     sqlConn.Close();
                 }
 
-                _log.WriteTraceLine(this, $"Activity succesfully created for '{username}'!");
+                _log.WriteTraceLine(this, $"Activity succesfully created for '{RequestAccountId}'!");
 
                 return 200;
             }
