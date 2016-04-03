@@ -115,5 +115,7 @@ namespace DataRelay
                 throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
             }
         }
+
+        private static string ConnectionString => ConfigurationManager.AppSettings["connectionString"];
     }
 }

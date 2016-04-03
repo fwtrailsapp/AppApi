@@ -26,9 +26,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -85,9 +83,7 @@ namespace DataRelay
             _log.WriteTraceLine(this, $"Logging in an account: {username}");
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -123,12 +119,11 @@ namespace DataRelay
         {
             _log.WriteTraceLine(this, $"Getting account information for '{RequestAccountId}'.");
             RequireLoginToken();
-
-            string connectionString = ConfigurationManager.AppSettings["connectionString"];
+            
             List<Account> account = null;
             try
             {
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -182,9 +177,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -293,9 +286,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -346,9 +337,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -447,9 +436,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -492,9 +479,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
