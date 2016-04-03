@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 
 namespace DataRelay
 {
@@ -10,33 +12,35 @@ namespace DataRelay
     public partial class DataRelay : IDataRelay
     {
         private static Logger _log;
+        private static AccountSessionManager _sessionManager;
 
         public DataRelay()
         {
-            _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            if (_log == null)
+                _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            if (_sessionManager == null)
+                _sessionManager = new AccountSessionManager();
         }
-        
-        public int CreateNewAccount(string username, string password, int dob, int weight, string sex, int height)
+
+        public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
         {
-            _log.WriteTraceLine(this, string.Format("Creating new account: {0}", username));
+            _log.WriteTraceLine(this, $"Creating new account: {username}");
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
                     if (accountExists(sqlConn, username))
                     {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' already exists!", username));
-                        return 401;
+                        _log.WriteTraceLine(this, $"Account '{username}' already exists!");
+                        throw new WebFaultException<string>("Account already exists", HttpStatusCode.Conflict);
                     }
 
-                    string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, dob, weight, sex, height) VALUES (@accountID, @username, @password, @dob, @weight, @sex, @height)";
+                    string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
                     
-                    string accountID = Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
+                    string accountID = GenerateAccountGuid();
 
                     using (SqlCommand cmdCreateAcct = new SqlCommand(createAcctQuery, sqlConn))
                     {
@@ -45,10 +49,10 @@ namespace DataRelay
                         cmdCreateAcct.Parameters.AddWithValue("@username", username);
                         cmdCreateAcct.Parameters.AddWithValue("@password", password);
 
-                        if (!dob.Equals(null))
-                            cmdCreateAcct.Parameters.AddWithValue("@dob", dob);
+                        if (!birthyear.Equals(null))
+                            cmdCreateAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
-                            cmdCreateAcct.Parameters.AddWithValue("@dob", DBNull.Value);
+                            cmdCreateAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
                         cmdCreateAcct.Parameters.AddWithValue("@weight", weight);
                         cmdCreateAcct.Parameters.AddWithValue("@sex", sex);
@@ -56,106 +60,117 @@ namespace DataRelay
                         
                         int result = cmdCreateAcct.ExecuteNonQuery();
 
-                        if (result == 1)
+                        if (result != 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Account '{0}' created successfully!", username));
-                            return 200;
+                            _log.WriteTraceLine(this, $"Account '{username}' was not created!");
+                            throw new WebFaultException<string>("Account couldn't be created.",
+                                HttpStatusCode.InternalServerError);
                         }
-                        else
-                        {
-                            _log.WriteTraceLine(this, string.Format("Account '{0}' was not created!", username));
-                            return 402;
-                        }
+
+                        _log.WriteTraceLine(this, $"Account '{username}' created successfully!");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Account couldn't be created.");
             }
-
-            return 500;
         }
 
-        public Account[] GetAccountInfo(string username)
+        public LoginToken Login(string username, string password)
         {
-            _log.WriteTraceLine(this, string.Format("Getting account information for '{0}'.", username));
-
-            string connectionString = ConfigurationManager.AppSettings["connectionString"];
-            List<Account> account = null;
+            _log.WriteTraceLine(this, $"Logging in an account: {username}");
             try
             {
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
-                    account = new List<Account>();
+                    //find the account's guid
+                    var acctGuid = GetAccountGuid(sqlConn, username);
+                    if (acctGuid == string.Empty)
+                    {
+                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
+                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                    }
 
-                    string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [username]=@username";
+                    //TODO: check password
+                    if (false)
+                    {
+                        _log.WriteTraceLine(this, $"Account '{username}' specified the wrong password!");
+                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                    }
+
+                    var token = _sessionManager.Add(acctGuid);
+                    return token;
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Account couldn't be logged in.");
+                return null; //will never be hit because genericerrorhandler always throws
+            }
+        }
+
+        public Account GetAccountInfo()
+        {
+            _log.WriteTraceLine(this, $"Getting account information for '{RequestAccountId}'.");
+            RequireLoginToken();
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [AccountId]=@accountId";
 
                     using (SqlCommand cmdGetUserInfo = new SqlCommand(getUserInfo, sqlConn))
                     {
-                        cmdGetUserInfo.Parameters.AddWithValue("@username", username);
+                        cmdGetUserInfo.Parameters.AddWithValue("@accountId", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetUserInfo.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
-                                Account a = new Account();
+                                Account account = new Account();
                                 reader.Read();
 
-                                if (!reader["dob"].Equals(DBNull.Value))
-                                    a.dob = reader.GetInt32(reader.GetOrdinal("dob"));
+                                if (!reader["birthyear"].Equals(DBNull.Value))
+                                    account.birthyear = reader.GetInt32(reader.GetOrdinal("birthyear"));
 
                                 if (!reader["weight"].Equals(DBNull.Value))
-                                    a.weight = reader.GetInt32(reader.GetOrdinal("weight"));
+                                    account.weight = reader.GetInt32(reader.GetOrdinal("weight"));
 
                                 if (!reader["sex"].Equals(DBNull.Value))
-                                    a.sex = reader.GetString(reader.GetOrdinal("sex"));
+                                    account.sex = reader.GetString(reader.GetOrdinal("sex"));
 
                                 if (!reader["height"].Equals(DBNull.Value))
-                                    a.height = reader.GetInt32(reader.GetOrdinal("height"));
+                                    account.height = reader.GetInt32(reader.GetOrdinal("height"));
 
-                                account.Add(a);
+                                return account;
                             }
-                            reader.Close();
+                            throw new WebFaultException<string>("Couldn't get account info.", HttpStatusCode.InternalServerError);
                         }
                     }
-                    sqlConn.Close();
                 }
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get account info.");
+                return null; //will never be hit because genericerrorhandler always throws
             }
-
-            return account.ToArray();
         }
 
-        public int CreateNewActivity(string username, string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
+        public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
-            _log.WriteTraceLine(this, string.Format("Creating a new activity for '{0}'!", username));
+            _log.WriteTraceLine(this, $"Creating a new activity for '{RequestAccountId}'!");
+            RequireLoginToken();
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-                int result = -1;
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
-
-                    string acctGuid = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
-                        return 401;
-                    }
-                    else
-                    {
-                        acctGuid = getAccountGuid(sqlConn, username);
-                    }
 
                     #region -- CREATE ACTIVITY --
                     int exerciseLookupId = getExerciseTypeID(sqlConn, exercise_type);
@@ -166,19 +181,17 @@ namespace DataRelay
 
                     using (SqlCommand cmdCreateActivity = new SqlCommand(createActivityQuery, sqlConn))
                     {
-                        cmdCreateActivity.Parameters.AddWithValue("@accountUserID", acctGuid);
+                        cmdCreateActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
                         cmdCreateActivity.Parameters.AddWithValue("@exerciseType", exerciseLookupId);
                         cmdCreateActivity.Parameters.AddWithValue("@startTime", timeStamp);
                         cmdCreateActivity.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
                         cmdCreateActivity.Parameters.AddWithValue("@distance", mileage);
                         cmdCreateActivity.Parameters.AddWithValue("@caloriesBurned", calories_burned);
-
-                        result = cmdCreateActivity.ExecuteNonQuery();
-
-                        if (result != 1)
+                        
+                        if (cmdCreateActivity.ExecuteNonQuery() != 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Activity could not be created for '{0}'!", username));
-                            return 500;
+                            _log.WriteTraceLine(this, $"Activity could not be created for '{RequestAccountId}'!");
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -186,13 +199,13 @@ namespace DataRelay
 
                     #region -- GET ACTIVITYID --
 
-                    int activityID = -1;
+                    int activityID;
 
                     string getActivityIDQuery = "SELECT TOP 1 [activityID] FROM ACTIVITY WHERE accountUserID=@accountUserID AND exerciseType=@exerciseType AND startTime=@startTime AND duration=@duration AND distance=@distance AND caloriesBurned=@caloriesBurned";
 
                     using (SqlCommand cmdGetActivityID = new SqlCommand(getActivityIDQuery, sqlConn))
                     {
-                        cmdGetActivityID.Parameters.AddWithValue("@accountUserID", acctGuid);
+                        cmdGetActivityID.Parameters.AddWithValue("@accountUserID", RequestAccountId);
                         cmdGetActivityID.Parameters.AddWithValue("@exerciseType", exerciseLookupId);
                         cmdGetActivityID.Parameters.AddWithValue("@startTime", timeStamp);
                         cmdGetActivityID.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
@@ -208,15 +221,17 @@ namespace DataRelay
                             }
                             else
                             {
-                                _log.WriteTraceLine(this, string.Format("ActivityID from new Activity for '{0}' could not be retrieved!", username));
-                                return 500;
+                                _log.WriteTraceLine(this,
+                                    $"ActivityID from new Activity for '{RequestAccountId}' could not be retrieved!");
+                                throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                             }
                         }
 
                         if (activityID == -1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Unknown error occured upon retreiving ActivityID for '{0}'!", username));
-                            return 501;
+                            _log.WriteTraceLine(this,
+                                $"Unknown error occured upon retreiving ActivityID for '{RequestAccountId}'!");
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -231,57 +246,36 @@ namespace DataRelay
                         cmdCreatePathSegmentQuery.Parameters.AddWithValue("@activityID", activityID);
                         cmdCreatePathSegmentQuery.Parameters.AddWithValue("@path", path);
 
-                        result = cmdCreatePathSegmentQuery.ExecuteNonQuery();
-
-                        if (result != 1)
+                        if (cmdCreatePathSegmentQuery.ExecuteNonQuery() != 1)
                         {
-                            _log.WriteTraceLine(this, string.Format("Failed to create PathSegment record for '{0}'!", username));
-                            return 500;
+                            _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{RequestAccountId}'!");
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
                     #endregion -- CREATE PATH SEGMENT --
-
-                    sqlConn.Close();
                 }
 
-                _log.WriteTraceLine(this, string.Format("Activity succesfully created for '{0}'!", username));
-
-                return 200;
+                _log.WriteTraceLine(this, $"Activity succesfully created for '{RequestAccountId}'!");
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Activity could not be created.");
             }
-
-            return 500;
         }
 
-        public Activity[] GetActivitiesForUser(string username)
+        public Activity[] GetActivitiesForUser()
         {
-            _log.WriteTraceLine(this, string.Format("Retreiving all activities for user '{0}'", username));
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
+            RequireLoginToken();
 
             List<Activity> activities = null;
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
-
-                    string accountUserID = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
-                        return null;
-                    }
-                    else
-                    {
-                        accountUserID = getAccountGuid(sqlConn, username);
-                    }
 
                     activities = new List<Activity>();
 
@@ -289,7 +283,7 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
-                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", accountUserID);
+                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
                         {
@@ -314,38 +308,25 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Activities could not be retrieved.");
             }
 
             return activities.ToArray();
         }
 
-        public TotalStat[] GetTotalStatsForUser(string username)
+        public TotalStat[] GetTotalStatsForUser()
         {
-            _log.WriteTraceLine(this, string.Format("Retreiving all activities for user '{0}'", username));
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
+            RequireLoginToken();
 
             List<Activity> activities = null;
             List<TotalStat> totalstats = null;
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
-
-                    string accountUserID = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, string.Format("Account '{0}' does not exist!", username));
-                        return null;
-                    }
-                    else
-                    {
-                        accountUserID = getAccountGuid(sqlConn, username);
-                    }
 
                     activities = new List<Activity>();
                     totalstats = new List<TotalStat>();
@@ -354,7 +335,7 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
-                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", accountUserID);
+                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
                         {
@@ -428,7 +409,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get total stats.");
             }
 
             return totalstats.ToArray();
@@ -442,9 +423,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 
@@ -472,7 +451,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                _log.WriteErrorLog(ex.GetType(), ex);
+                GenericErrorHandler(ex, "Couldn't get all paths");
             }
 
             return pathArray.ToArray();
@@ -487,9 +466,7 @@ namespace DataRelay
 
             try
             {
-                string connectionString = ConfigurationManager.AppSettings["connectionString"];
-
-                using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
 

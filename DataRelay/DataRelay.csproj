@@ -111,6 +111,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountSessionManager.cs" />
     <Compile Include="DataRelay.svc.cs">
       <DependentUpon>DataRelay.svc</DependentUpon>
     </Compile>
@@ -118,6 +119,7 @@
     <Compile Include="DataRelayInterface.cs" />
     <Compile Include="DataRelayObjects.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="LoginToken.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

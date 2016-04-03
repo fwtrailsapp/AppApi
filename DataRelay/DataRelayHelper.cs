@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
 using System.ServiceModel;
+using System.ServiceModel.Web;
+using System.Web;
 
 namespace DataRelay
 {
@@ -29,29 +33,22 @@ namespace DataRelay
             }
         }
 
-        public string getAccountGuid(SqlConnection sqlConn, string username)
+        private static string GetAccountGuid(SqlConnection sqlConn, string username)
         {
-            string guid = string.Empty;
+            const string queryGetGuid = "SELECT TOP 1 [accountID] FROM [Account] where [username]=@username";
 
-            string queryGetGuid = "SELECT TOP 1 [accountID] FROM [Account] where [username]=@username";
-
-            using (SqlCommand cmdQueryGetGuid = new SqlCommand(queryGetGuid, sqlConn))
+            using (var cmdQueryGetGuid = new SqlCommand(queryGetGuid, sqlConn))
             {
                 cmdQueryGetGuid.Parameters.AddWithValue("username", username);
 
-                using (SqlDataReader reader = cmdQueryGetGuid.ExecuteReader())
+                using (var reader = cmdQueryGetGuid.ExecuteReader())
                 {
-                    if (reader.HasRows)
-                    {
-                        reader.Read();
-
-                        if (!reader["accountID"].Equals(DBNull.Value))
-                            guid = reader.GetString(reader.GetOrdinal("accountID"));
-                    }
+                    if (!reader.HasRows) return string.Empty;
+                    if (!reader.Read()) return string.Empty;
+                    if (reader["accountID"].Equals(DBNull.Value)) return string.Empty;
+                    return reader.GetString(reader.GetOrdinal("accountID"));
                 }
             }
-
-                return guid;
         }
 
         public int getExerciseTypeID(SqlConnection sqlConn, string exercise_type)
@@ -77,6 +74,56 @@ namespace DataRelay
             }
 
             return lookUpID;
+        }
+
+        private static string GenerateAccountGuid()
+        {
+            return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
+        }
+
+        private string RequestAccountId
+        {
+            get
+            {
+                var tokenStr = WebOperationContext.Current?.IncomingRequest.Headers["Trails-Api-Key"];
+                if (tokenStr == null)
+                    return null;
+
+                Guid g;
+                if (!Guid.TryParse(tokenStr, out g))
+                    return null;
+
+                var token = new LoginToken(g);
+
+                try
+                {
+                    return _sessionManager.GetAccountIdFromToken(token);
+                }
+                catch (KeyNotFoundException)
+                {
+                    //the account hasn't logged in
+                    return null;
+                }
+            }
+        }
+
+        private void RequireLoginToken()
+        {
+            if (RequestAccountId == null)
+            {
+                _log.WriteDebugLog($"Login token was not sent or was invalid.");
+                throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
+            }
+        }
+
+        private static string ConnectionString => ConfigurationManager.AppSettings["connectionString"];
+        
+        private void GenericErrorHandler(Exception ex, string detail)
+        {
+            _log.WriteErrorLog(ex.GetType(), ex);
+            if (ex is WebFaultException<string>)
+                throw ex;
+            throw new WebFaultException<string>(detail, HttpStatusCode.InternalServerError);
         }
     }
 }
