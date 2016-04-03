@@ -85,7 +85,7 @@ namespace DataRelay
         {
             get
             {
-                var tokenStr = HttpContext.Current.Request.Headers["Trails-Api-Key"];
+                var tokenStr = WebOperationContext.Current?.IncomingRequest.Headers["Trails-Api-Key"];
                 if (tokenStr == null)
                     return null;
 
