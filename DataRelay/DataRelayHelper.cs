@@ -111,7 +111,7 @@ namespace DataRelay
         {
             if (RequestAccountId == null)
             {
-                _log.WriteDebugLog("Client did not specifiy a login token.");
+                _log.WriteDebugLog($"Login token was not sent or was invalid.");
                 throw new WebFaultException<string>("Login token was not sent or was invalid.", HttpStatusCode.Unauthorized);
             }
         }
