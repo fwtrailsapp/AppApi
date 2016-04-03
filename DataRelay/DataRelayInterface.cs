@@ -41,7 +41,7 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        int CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
+        void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path);
 
         [OperationContract]
         [WebInvoke(Method = "GET",

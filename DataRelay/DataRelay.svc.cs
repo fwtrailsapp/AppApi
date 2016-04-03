@@ -175,7 +175,7 @@ namespace DataRelay
             return account.ToArray();
         }
 
-        public int CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
+        public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
             _log.WriteTraceLine(this, $"Creating a new activity for '{RequestAccountId}'!");
 
@@ -206,7 +206,7 @@ namespace DataRelay
                         if (cmdCreateActivity.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Activity could not be created for '{RequestAccountId}'!");
-                            return 500;
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -238,7 +238,7 @@ namespace DataRelay
                             {
                                 _log.WriteTraceLine(this,
                                     $"ActivityID from new Activity for '{RequestAccountId}' could not be retrieved!");
-                                return 500;
+                                throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                             }
                         }
 
@@ -246,7 +246,7 @@ namespace DataRelay
                         {
                             _log.WriteTraceLine(this,
                                 $"Unknown error occured upon retreiving ActivityID for '{RequestAccountId}'!");
-                            return 501;
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -264,7 +264,7 @@ namespace DataRelay
                         if (cmdCreatePathSegmentQuery.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{RequestAccountId}'!");
-                            return 500;
+                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -274,15 +274,13 @@ namespace DataRelay
                 }
 
                 _log.WriteTraceLine(this, $"Activity succesfully created for '{RequestAccountId}'!");
-
-                return 200;
             }
             catch (Exception ex)
             {
                 _log.WriteErrorLog(ex.GetType(), ex);
             }
 
-            return 500;
+            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
         }
 
         public Activity[] GetActivitiesForUser()
