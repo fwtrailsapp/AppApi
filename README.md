@@ -7,6 +7,18 @@ http://68.39.46.187:50000/GreenwayCap/DataRelay.svc/
 
 For POST, all params are sent as a JSON object in the body of the request. These headers should contain `Content-Type: application/json`.
 
+## Auth Token
+
+After **POST login**, the server will send back an auth token. Clients should send this token when making ANY future requests so the server knows with which user it’s dealing. The headers for all other requests should contain it like `Trails-Api-Key: ab83920bdc826bdaf`
+
+## HTTP Status Codes
+
+* HTTP 200: The request has completed successfully.
+* HTTP 400: The request is invalid. The format of the sent data is invalid or doesn’t include all required fields.
+* HTTP 401: The auth token was not included in the request headers. For POST login, The username and password are incorrect.
+* HTTP 419: The auth token is no longer (or never was) valid and should be re-obtained before making any more requests.
+* HTTP 500: The server is at fault.
+
 ## Date Format
 
 All absolute dates are sent in [ISO 8601][1] format. This is a standard which has support from all of our platforms.
@@ -16,7 +28,7 @@ All absolute dates are sent in [ISO 8601][1] format. This is a standard which ha
 * `ExerciseType` can be `bike` or `run` or `walk`.
 * `LineString` is a string where a point is float lat and float long, separated by a comma, and each point is separated with by a space. Example: `20.3323,70.4531 21.3323,71.4531 22.3323,72.4531`
 
-# API SPEC v0.5
+# API SPEC v0.8
 
 ## POST /Account/Create
 
@@ -46,9 +58,24 @@ ex.
 * HTTP 200 - Account created successfully
 * HTTP 401 - Username or password was rejected or already in use
 
-## GET /Account/(username)
+## POST /trails/api/1/login
 
-Requests the account information of the user.
+Attempts login by authenticating username and password. For valid username/password combinations, the server returns an authorization token that is necessary for all subsequent API calls. The authorization token will be used both for authorization and for identification. See the overview section for how to include it.
+
+### Params
+
+* username - string
+* password - string
+
+### Responses
+
+* HTTP 200 - Logged in successfully
+  * authtoken - string, a long guid or hexidecimal string to identify this user’s requests
+* HTTP 401 - Incorrect username/password
+
+## GET /Account
+
+Requests the account information of the user. This request will fail if an auth token is not provided.
 
 ### Responses
 
@@ -64,7 +91,6 @@ Store a new activity, after it has been completed.
 
 ### Parameters
 
-* username - string
 * time_started - string, ISO 8601 date("yyyy-MM-dd'T'HH:mm:ss")
 * duration - string, ISO 8601 date('HH:mm:ss')
 * mileage - float
@@ -87,7 +113,7 @@ ex.
 
 * HTTP 200
 
-## GET /Activity/(username)
+## GET /Activity
 
 Returns all of the activities for the current user. Does not include paths.
 
@@ -96,42 +122,37 @@ Returns all of the activities for the current user. Does not include paths.
 * HTTP 200
   * array:
     * time_started - string, ISO 8601 date("yyyy-MM-dd'T'HH:mm:ss")
-    * duration - string, ISO 8601 date('HH:mm:ss')
+    * duration - string, ISO 8601 date("HH:mm:ss")
     * mileage - float
     * calories_burned - int
     * exercise_type - string, an ExcerciseType datatype
   
-## GET /Statistics/(username)
+## GET /Statistics
 
 Returns the aggregate of all the activities for a user in the system.
 
 ### Response
 
 * HTTP 200
-  * array of 4 elements:
-    * type - string, "Overall", "Bike", "Run", or "Walk"
-    * total_calories - int
-    * total_duration - ISO 8601 duration
-    * total_distance - float, in miles
+  * type - string, "Overall", "Bike", "Run", or "Walk"
+  * total_calories - int
+  * total_duration - ISO 8601 duration
+  * total_distance - float, in miles
 
 
-## GET /AllStat
+## GET /Statistics/All
 
 Returns the aggregate of all the activities for every user in the system.
 
 ### Response
 
 * HTTP 200
-  * array of 4 elements:
-    * type - string, "Overall", "Bike", "Run", or "Walk"
-    * total_calories - int
-    * total_duration - ISO 8601 duration
-    * total_distance - float, in miles
+  * type - string, "Overall", "Bike", "Run", or "Walk"
+  * total_calories - int
+  * total_duration - ISO 8601 duration
+  * total_distance - float, in miles
 
 
-## GET /OverAllPath
+## GET /Path/All
 
 Returns the path of every activity for all users
-
-  
-  
