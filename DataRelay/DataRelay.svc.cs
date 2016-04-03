@@ -178,6 +178,7 @@ namespace DataRelay
         public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
         {
             _log.WriteTraceLine(this, $"Creating a new activity for '{RequestAccountId}'!");
+            RequireLoginToken();
 
             try
             {
