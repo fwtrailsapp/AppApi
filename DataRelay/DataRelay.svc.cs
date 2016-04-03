@@ -286,7 +286,8 @@ namespace DataRelay
 
         public Activity[] GetActivitiesForUser()
         {
-            _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
+            RequireLoginToken();
 
             List<Activity> activities = null;
 
@@ -298,25 +299,13 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string accountUserID = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
-                        return null;
-                    }
-                    else
-                    {
-                        accountUserID = GetAccountGuid(sqlConn, username);
-                    }
-
                     activities = new List<Activity>();
 
                     string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID";
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
-                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", accountUserID);
+                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
                         {
