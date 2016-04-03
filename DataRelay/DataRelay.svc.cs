@@ -11,13 +11,15 @@ namespace DataRelay
     [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true, InstanceContextMode = InstanceContextMode.PerCall)]
     public partial class DataRelay : IDataRelay
     {
-        private readonly Logger _log;
-        private readonly AccountSessionManager _sessionManager;
+        private static Logger _log;
+        private static AccountSessionManager _sessionManager;
 
         public DataRelay()
         {
-            _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
-            _sessionManager = new AccountSessionManager();
+            if (_log == null)
+                _log = new Logger(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+            if (_sessionManager == null)
+                _sessionManager = new AccountSessionManager();
         }
 
         public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
