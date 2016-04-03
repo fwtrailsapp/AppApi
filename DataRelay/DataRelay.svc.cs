@@ -182,7 +182,6 @@ namespace DataRelay
             try
             {
                 string connectionString = ConfigurationManager.AppSettings["connectionString"];
-                int result = -1;
 
                 using (SqlConnection sqlConn = new SqlConnection(connectionString))
                 {
@@ -203,10 +202,8 @@ namespace DataRelay
                         cmdCreateActivity.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
                         cmdCreateActivity.Parameters.AddWithValue("@distance", mileage);
                         cmdCreateActivity.Parameters.AddWithValue("@caloriesBurned", calories_burned);
-
-                        result = cmdCreateActivity.ExecuteNonQuery();
-
-                        if (result != 1)
+                        
+                        if (cmdCreateActivity.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Activity could not be created for '{RequestAccountId}'!");
                             return 500;
@@ -264,9 +261,7 @@ namespace DataRelay
                         cmdCreatePathSegmentQuery.Parameters.AddWithValue("@activityID", activityID);
                         cmdCreatePathSegmentQuery.Parameters.AddWithValue("@path", path);
 
-                        result = cmdCreatePathSegmentQuery.ExecuteNonQuery();
-
-                        if (result != 1)
+                        if (cmdCreatePathSegmentQuery.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{RequestAccountId}'!");
                             return 500;
