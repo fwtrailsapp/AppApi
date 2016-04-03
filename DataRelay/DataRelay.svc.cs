@@ -338,7 +338,8 @@ namespace DataRelay
 
         public TotalStat[] GetTotalStatsForUser()
         {
-            _log.WriteTraceLine(this, $"Retreiving all activities for user '{username}'");
+            _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
+            RequireLoginToken();
 
             List<Activity> activities = null;
             List<TotalStat> totalstats = null;
@@ -351,18 +352,6 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string accountUserID = string.Empty;
-
-                    if (!accountExists(sqlConn, username))
-                    {
-                        _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
-                        return null;
-                    }
-                    else
-                    {
-                        accountUserID = GetAccountGuid(sqlConn, username);
-                    }
-
                     activities = new List<Activity>();
                     totalstats = new List<TotalStat>();
 
@@ -370,7 +359,7 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
-                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", accountUserID);
+                        cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
 
                         using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
                         {
