@@ -150,10 +150,8 @@ namespace DataRelay
                                 return account;
                             }
                             throw new WebFaultException<string>("Couldn't get account info.", HttpStatusCode.InternalServerError);
-                            reader.Close();
                         }
                     }
-                    sqlConn.Close();
                 }
             }
             catch (Exception ex)
@@ -256,8 +254,6 @@ namespace DataRelay
                     }
 
                     #endregion -- CREATE PATH SEGMENT --
-
-                    sqlConn.Close();
                 }
 
                 _log.WriteTraceLine(this, $"Activity succesfully created for '{RequestAccountId}'!");
