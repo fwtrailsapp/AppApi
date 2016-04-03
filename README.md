@@ -30,7 +30,7 @@ All absolute dates are sent in [ISO 8601][1] format. This is a standard which ha
 
 # API SPEC v0.8
 
-## POST /Account/Create
+## POST /trails/api/1/Account/Create
 
 This request creates a new account;
 
@@ -58,7 +58,7 @@ ex.
 * HTTP 200 - Account created successfully
 * HTTP 401 - Username or password was rejected or already in use
 
-## POST /trails/api/1/login
+## POST /trails/api/1/Login
 
 Attempts login by authenticating username and password. For valid username/password combinations, the server returns an authorization token that is necessary for all subsequent API calls. The authorization token will be used both for authorization and for identification. See the overview section for how to include it.
 
@@ -73,7 +73,7 @@ Attempts login by authenticating username and password. For valid username/passw
   * authtoken - string, a long guid or hexidecimal string to identify this user’s requests
 * HTTP 401 - Incorrect username/password
 
-## GET /Account
+## GET /trails/api/1/Account
 
 Requests the account information of the user. This request will fail if an auth token is not provided.
 
@@ -85,7 +85,7 @@ Requests the account information of the user. This request will fail if an auth 
   * sex - string, "male" or "female", nullable
   * height - int, inches, nullable
 
-## POST /Activity
+## POST /trails/api/1/Activity
 
 Store a new activity, after it has been completed.
 
@@ -113,7 +113,7 @@ ex.
 
 * HTTP 200
 
-## GET /Activity
+## GET /trails/api/1/Activity
 
 Returns all of the activities for the current user. Does not include paths.
 
@@ -140,7 +140,7 @@ Returns the aggregate of all the activities for a user in the system.
   * total_distance - float, in miles
 
 
-## GET /Statistics/All
+## GET /trails/api/1/Statistics/All
 
 Returns the aggregate of all the activities for every user in the system.
 
@@ -153,6 +153,6 @@ Returns the aggregate of all the activities for every user in the system.
   * total_distance - float, in miles
 
 
-## GET /Path/All
+## GET /trails/api/1/Path/All
 
 Returns the path of every activity for all users
