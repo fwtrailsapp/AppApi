@@ -1,4 +1,4 @@
-# City of Fort Wayne Greenways and Trail Department REST API (CRAPI) Overview
+# City of Fort Wayne Greenways and Trails Department REST API (CRAPI) Overview
 
 All calls will be sent to 
 http://68.39.46.187:50000/GreenwayCap/DataRelay.svc/
