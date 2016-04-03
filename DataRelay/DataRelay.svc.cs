@@ -214,7 +214,7 @@ namespace DataRelay
 
                     #region -- GET ACTIVITYID --
 
-                    int activityID = -1;
+                    int activityID;
 
                     string getActivityIDQuery = "SELECT TOP 1 [activityID] FROM ACTIVITY WHERE accountUserID=@accountUserID AND exerciseType=@exerciseType AND startTime=@startTime AND duration=@duration AND distance=@distance AND caloriesBurned=@caloriesBurned";
 
