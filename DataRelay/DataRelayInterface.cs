@@ -33,7 +33,7 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Account",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
-        Account[] GetAccountInfo();
+        Account GetAccountInfo();
 
         [OperationContract]
         [WebInvoke(Method = "POST",

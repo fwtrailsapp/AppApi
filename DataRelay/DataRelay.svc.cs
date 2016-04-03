@@ -112,19 +112,15 @@ namespace DataRelay
             }
         }
 
-        public Account[] GetAccountInfo()
+        public Account GetAccountInfo()
         {
             _log.WriteTraceLine(this, $"Getting account information for '{RequestAccountId}'.");
             RequireLoginToken();
-            
-            List<Account> account = null;
             try
             {
                 using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
-
-                    account = new List<Account>();
 
                     string getUserInfo = "SELECT TOP 1 * FROM ACCOUNT WHERE [AccountId]=@accountId";
 
@@ -136,29 +132,29 @@ namespace DataRelay
                         {
                             if (reader.HasRows)
                             {
-                                Account a = new Account();
+                                Account account = new Account();
                                 reader.Read();
 
                                 if (!reader["birthyear"].Equals(DBNull.Value))
-                                    a.birthyear = reader.GetInt32(reader.GetOrdinal("birthyear"));
+                                    account.birthyear = reader.GetInt32(reader.GetOrdinal("birthyear"));
 
                                 if (!reader["weight"].Equals(DBNull.Value))
-                                    a.weight = reader.GetInt32(reader.GetOrdinal("weight"));
+                                    account.weight = reader.GetInt32(reader.GetOrdinal("weight"));
 
                                 if (!reader["sex"].Equals(DBNull.Value))
-                                    a.sex = reader.GetString(reader.GetOrdinal("sex"));
+                                    account.sex = reader.GetString(reader.GetOrdinal("sex"));
 
                                 if (!reader["height"].Equals(DBNull.Value))
-                                    a.height = reader.GetInt32(reader.GetOrdinal("height"));
+                                    account.height = reader.GetInt32(reader.GetOrdinal("height"));
 
-                                account.Add(a);
+                                return account;
                             }
+                            throw new WebFaultException<string>("Couldn't get account info.", HttpStatusCode.InternalServerError);
                             reader.Close();
                         }
                     }
                     sqlConn.Close();
                 }
-                return account.ToArray();
             }
             catch (Exception ex)
             {
