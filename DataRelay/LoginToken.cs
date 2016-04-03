@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace DataRelay
 {
+    [DataContract]
     public class LoginToken
     {
+        [DataMember]
         private readonly Guid token;
 
         public LoginToken() : this(Guid.NewGuid())
