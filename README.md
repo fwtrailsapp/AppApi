@@ -71,6 +71,9 @@ Attempts login by authenticating username and password. For valid username/passw
 
 * HTTP 200 - Logged in successfully
   * authtoken - string, a long guid or hexidecimal string to identify this user’s requests
+  ex. {
+      "token": "20b4fa43-c158-465c-87fd-462c454b54c9"
+    }
 * HTTP 401 - Incorrect username/password
 
 ## GET /trails/api/1/Account
