@@ -90,6 +90,22 @@ Requests the account information of the user. This request will fail if an auth 
   * sex - string, "male" or "female", nullable
   * height - int, inches, nullable
 
+## POST /trails/api/1/account/edit
+
+Modifies the specified fields of the user’s account.
+
+### Parameters
+
+* birthyear - int, nullable
+* weight - float, pounds, nullable
+* sex - string, "male" or "female", nullable
+* height - float, inches, nullable
+
+### Response
+
+* HTTP 200
+
+
 ## POST /trails/api/1/Activity
 
 Store a new activity, after it has been completed.
