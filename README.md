@@ -97,9 +97,9 @@ Modifies the specified fields of the user’s account.
 ### Parameters
 
 * birthyear - int, nullable
-* weight - float, pounds, nullable
+* weight - int, pounds, nullable
 * sex - string, "male" or "female", nullable
-* height - float, inches, nullable
+* height - int, inches, nullable
 
 ### Response
 
