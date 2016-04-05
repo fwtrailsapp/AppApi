@@ -77,6 +77,52 @@ namespace DataRelay
             }
         }
 
+        public void EditAccount(int birthyear, int weight, string sex, int height)
+        {
+            _log.WriteTraceLine(this, $"Updating account");
+            RequireLoginToken();
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    //string editAccount = "INSERT INTO ACCOUNT (accountUserID, birthyear, weight, sex, height) VALUES (@accountUserID, @birthyear, @weight, @sex, @height)";
+                    string editAccount = "UPDATE ACCOUNT SET birthyear=@birthyear, weight=@weight, sex=@sex, height=@height WHERE accountID=@accountID";
+
+                    using (SqlCommand cmdEditAcct = new SqlCommand(editAccount, sqlConn))
+                    {
+                        cmdEditAcct.Parameters.AddWithValue("@accountID", RequestAccountId);
+
+                        if (!birthyear.Equals(null))
+                            cmdEditAcct.Parameters.AddWithValue("@birthyear", birthyear);
+                        else
+                            cmdEditAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
+
+                        cmdEditAcct.Parameters.AddWithValue("@weight", weight);
+                        cmdEditAcct.Parameters.AddWithValue("@sex", sex);
+                        cmdEditAcct.Parameters.AddWithValue("@height", height);
+
+                        int result = cmdEditAcct.ExecuteNonQuery();
+
+                        if (result != 1)
+                        {
+                            _log.WriteTraceLine(this, $"Account was not updated!");
+                            throw new WebFaultException<string>("Account couldn't be updated 1.",
+                                HttpStatusCode.InternalServerError);
+                        }
+
+                        _log.WriteTraceLine(this, $"Account successfully updated!");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Account couldn't be updated 2.");
+            }
+        }
+
         public LoginToken Login(string username, string password)
         {
             _log.WriteTraceLine(this, $"Logging in an account: {username}");

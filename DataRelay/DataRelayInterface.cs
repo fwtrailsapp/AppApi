@@ -22,6 +22,14 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "POST",
+          UriTemplate = "trails/api/1/Account/Edit",
+          RequestFormat = WebMessageFormat.Json,
+          ResponseFormat = WebMessageFormat.Json,
+          BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        void EditAccount(int birthyear, int weight, string sex, int height);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
             UriTemplate = "trails/api/1/Login",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
