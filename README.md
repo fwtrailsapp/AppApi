@@ -90,7 +90,7 @@ Requests the account information of the user. This request will fail if an auth 
   * sex - string, "male" or "female", nullable
   * height - int, inches, nullable
 
-## POST /trails/api/1/account/edit
+## POST /trails/api/1/Account/edit
 
 Modifies the specified fields of the user’s account.
 
