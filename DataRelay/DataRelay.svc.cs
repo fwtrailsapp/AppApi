@@ -54,10 +54,21 @@ namespace DataRelay
                         else
                             cmdCreateAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
-                        cmdCreateAcct.Parameters.AddWithValue("@weight", weight);
-                        cmdCreateAcct.Parameters.AddWithValue("@sex", sex);
-                        cmdCreateAcct.Parameters.AddWithValue("@height", height);
-                        
+                        if (!weight.Equals(null))
+                            cmdCreateAcct.Parameters.AddWithValue("@weight", weight);
+                        else
+                            cmdCreateAcct.Parameters.AddWithValue("@weight", DBNull.Value);
+
+                        if (!sex.Equals(null))
+                            cmdCreateAcct.Parameters.AddWithValue("@sex", sex);
+                        else
+                            cmdCreateAcct.Parameters.AddWithValue("@sex", DBNull.Value);
+
+                        if (!height.Equals(null))
+                            cmdCreateAcct.Parameters.AddWithValue("@height", height);
+                        else
+                            cmdCreateAcct.Parameters.AddWithValue("@height", DBNull.Value);
+
                         int result = cmdCreateAcct.ExecuteNonQuery();
 
                         if (result != 1)
@@ -95,14 +106,26 @@ namespace DataRelay
                         cmdEditAcct.Parameters.AddWithValue("@accountID", RequestAccountId);
                         cmdEditAcct.Parameters.AddWithValue("@username", username);
                         cmdEditAcct.Parameters.AddWithValue("@password", password);
+
                         if (!birthyear.Equals(null))
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
-                        cmdEditAcct.Parameters.AddWithValue("@weight", weight);
-                        cmdEditAcct.Parameters.AddWithValue("@sex", sex);
-                        cmdEditAcct.Parameters.AddWithValue("@height", height);
+                        if (!weight.Equals(null))
+                            cmdEditAcct.Parameters.AddWithValue("@weight", weight);
+                        else
+                            cmdEditAcct.Parameters.AddWithValue("@weight", DBNull.Value);
+
+                        if (!sex.Equals(null))
+                            cmdEditAcct.Parameters.AddWithValue("@sex", sex);
+                        else
+                            cmdEditAcct.Parameters.AddWithValue("@sex", DBNull.Value);
+
+                        if(!height.Equals(null))
+                            cmdEditAcct.Parameters.AddWithValue("@height", height);
+                        else
+                            cmdEditAcct.Parameters.AddWithValue("@height", DBNull.Value);
 
                         int result = cmdEditAcct.ExecuteNonQuery();
 
@@ -113,7 +136,7 @@ namespace DataRelay
                                 HttpStatusCode.InternalServerError);
                         }
 
-                        _log.WriteTraceLine(this, $"Account successfully updated!");
+                        _log.WriteTraceLine(this, $"Account successfully updated 1");
                     }
                 }
             }
