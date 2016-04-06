@@ -77,7 +77,7 @@ namespace DataRelay
             }
         }
 
-        public void EditAccount(int birthyear, int weight, string sex, int height)
+        public void EditAccount(string username, string password, int birthyear, int weight, string sex, int height)
         {
             _log.WriteTraceLine(this, $"Updating account");
             RequireLoginToken();
@@ -88,13 +88,13 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    //string editAccount = "INSERT INTO ACCOUNT (accountUserID, birthyear, weight, sex, height) VALUES (@accountUserID, @birthyear, @weight, @sex, @height)";
-                    string editAccount = "UPDATE ACCOUNT SET birthyear=@birthyear, weight=@weight, sex=@sex, height=@height WHERE accountID=@accountID";
+                    string editAccount = "UPDATE ACCOUNT SET username=@username, password=@password, birthyear=@birthyear, weight=@weight, sex=@sex, height=@height WHERE accountID=@accountID";
 
                     using (SqlCommand cmdEditAcct = new SqlCommand(editAccount, sqlConn))
                     {
                         cmdEditAcct.Parameters.AddWithValue("@accountID", RequestAccountId);
-
+                        cmdEditAcct.Parameters.AddWithValue("@username", username);
+                        cmdEditAcct.Parameters.AddWithValue("@password", password);
                         if (!birthyear.Equals(null))
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
@@ -325,7 +325,7 @@ namespace DataRelay
 
                     activities = new List<Activity>();
 
-                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID";
+                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID ORDER BY A.startTime DESC";
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
