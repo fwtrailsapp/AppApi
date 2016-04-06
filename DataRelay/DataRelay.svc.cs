@@ -22,7 +22,7 @@ namespace DataRelay
                 _sessionManager = new AccountSessionManager();
         }
 
-        public void CreateNewAccount(string username, string password, int birthyear, int weight, string sex, int height)
+        public void CreateNewAccount(string username, string password, int? birthyear, int? weight, string sex, int? height)
         {
             _log.WriteTraceLine(this, $"Creating new account: {username}");
 
@@ -88,7 +88,7 @@ namespace DataRelay
             }
         }
 
-        public void EditAccount(string username, string password, int birthyear, int weight, string sex, int height)
+        public void EditAccount(string username, string password, int? birthyear, int? weight, string sex, int? height)
         {
             _log.WriteTraceLine(this, $"Updating account");
             RequireLoginToken();

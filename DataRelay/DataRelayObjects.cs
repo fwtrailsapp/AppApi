@@ -10,11 +10,11 @@ namespace DataRelay
     public class Account
     {
         [DataMember]
-        public int birthyear { get; set; }
+        public int? birthyear { get; set; }
         [DataMember]
-        public int weight { get; set; }
+        public int? weight { get; set; }
         [DataMember]
-        public int height { get; set; }
+        public int? height { get; set; }
         [DataMember]
         public string sex { get; set; }
     }
