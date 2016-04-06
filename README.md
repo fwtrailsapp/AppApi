@@ -149,7 +149,7 @@ Returns all of the activities for the current user. Does not include paths.
     * calories_burned - int
     * exercise_type - string, an ExcerciseType datatype
   
-## GET /Statistics
+## GET trails/api/1/Statistics
 
 Returns the aggregate of all the activities for a user in the system.
 
