@@ -95,7 +95,8 @@ Requests the account information of the user. This request will fail if an auth 
 Modifies the specified fields of the user’s account.
 
 ### Parameters
-
+* username - string
+* password - string
 * birthyear - int, nullable
 * weight - int, pounds, nullable
 * sex - string, "male" or "female", nullable
