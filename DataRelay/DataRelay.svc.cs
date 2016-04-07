@@ -417,9 +417,13 @@ namespace DataRelay
                             {
                                 while (reader.Read())
                                 {
+                                    var seconds = reader.GetInt32(reader.GetOrdinal("duration"));
+                                    var timespan = TimeSpan.FromSeconds(seconds);
+                                    var strDuration = timespan.ToString();
+
                                     var a = new Activity
                                     {
-                                        duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString(),
+                                        duration = strDuration,
                                         mileage = (float) reader.GetDouble(reader.GetOrdinal("distance")),
                                         calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned")),
                                         exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"))
