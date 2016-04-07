@@ -392,7 +392,7 @@ namespace DataRelay
 
         public TotalStat[] GetTotalStatsForUser()
         {
-            _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
+            _log.WriteTraceLine(this, $"Retreiving all statistics for user '{RequestAccountId}'");
             RequireLoginToken();
 
             try
