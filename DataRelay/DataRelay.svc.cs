@@ -396,7 +396,6 @@ namespace DataRelay
             RequireLoginToken();
 
             List<Activity> activities = null;
-            List<TotalStat> totalstats = null;
 
             try
             {
@@ -405,7 +404,6 @@ namespace DataRelay
                     sqlConn.Open();
 
                     activities = new List<Activity>();
-                    totalstats = new List<TotalStat>();
 
                     string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID";
 
@@ -417,20 +415,6 @@ namespace DataRelay
                         {
                             if (reader.HasRows)
                             {
-                                TotalStat overall = new TotalStat();
-                                TotalStat bike = new TotalStat();
-                                TotalStat run = new TotalStat();
-                                TotalStat walk = new TotalStat();
-                                int middleInt = 0;
-                                int middleIntBike = 0;
-                                int middleIntRun = 0;
-                                int middleIntWalk = 0;
-
-                                overall.type = "Overall";
-                                bike.type = "Bike";
-                                run.type = "Run";
-                                walk.type = "Walk";
-
                                 while (reader.Read())
                                 {
                                     Activity a = new Activity();
@@ -439,46 +423,63 @@ namespace DataRelay
                                     a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
                                     a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
 
-                                    middleInt += reader.GetInt32(reader.GetOrdinal("duration"));
-
-
-                                    overall.total_duration = TimeSpan.FromSeconds(middleInt).ToString();
-                                    overall.total_distance += a.mileage; 
-                                    overall.total_calories += a.calories_burned;
-
-                                    if (a.exercise_type.Equals("bike"))
-                                    {
-                                        middleIntBike += reader.GetInt32(reader.GetOrdinal("duration"));
-                                        bike.total_duration = TimeSpan.FromSeconds(middleIntBike).ToString();
-                                        bike.total_distance += a.mileage;
-                                        bike.total_calories += a.calories_burned;
-
-                                    }
-                                    else if (a.exercise_type.Equals("run"))
-                                    {
-                                        middleIntRun += reader.GetInt32(reader.GetOrdinal("duration"));
-                                        run.total_duration = TimeSpan.FromSeconds(middleIntRun).ToString();
-                                        run.total_distance += a.mileage;
-                                        run.total_calories += a.calories_burned;
-
-                                    }
-                                    else if(a.exercise_type.Equals("walk"))
-                                    {
-                                        middleIntWalk += reader.GetInt32(reader.GetOrdinal("duration"));
-                                        walk.total_duration = TimeSpan.FromSeconds(middleIntWalk).ToString();
-                                        walk.total_distance += a.mileage;
-                                        walk.total_calories += a.calories_burned;
-
-                                    }
-
-                                    activities.Add(a);
-                                        
+                                    activities.Add(a); 
                                 }
-                                totalstats.Add(overall);
-                                totalstats.Add(bike);
-                                totalstats.Add(run);
-                                totalstats.Add(walk);
                             }
+
+                            int durationSecondsOverall = 0;
+                            int durationSecondsBike = 0;
+                            int durationSecondsRun = 0;
+                            int durationSecondsWalk = 0;
+
+                            float mileageOverall = 0f;
+                            float mileageBike = 0f;
+                            float mileageRun = 0f;
+                            float mileageWalk = 0f;
+
+                            int caloriesOverall = 0;
+                            int caloriesBike = 0;
+                            int caloriesRun = 0;
+                            int caloriesWalk = 0;
+
+                            foreach (Activity a in activities)
+                            {
+                                durationSecondsOverall += (int) TimeSpan.Parse(a.duration).TotalSeconds;
+                                mileageOverall += a.mileage;
+                                caloriesOverall += a.calories_burned;
+
+                                if (a.exercise_type.Equals("bike"))
+                                {
+                                    durationSecondsBike += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    mileageBike += a.mileage;
+                                    caloriesBike += a.calories_burned;
+
+                                }
+                                else if (a.exercise_type.Equals("run"))
+                                {
+                                    durationSecondsRun += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    mileageRun += a.mileage;
+                                    caloriesRun += a.calories_burned;
+
+                                }
+                                else if (a.exercise_type.Equals("walk"))
+                                {
+                                    durationSecondsWalk += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    mileageWalk += a.mileage;
+                                    caloriesWalk += a.calories_burned;
+
+                                }
+                            }
+
+                            var allStats = new[]
+                            {
+                                new TotalStat("Overall", TimeSpan.FromSeconds(durationSecondsOverall).ToString(), mileageOverall, caloriesOverall), 
+                                new TotalStat("Bike", TimeSpan.FromSeconds(durationSecondsBike).ToString(), mileageBike, caloriesBike), 
+                                new TotalStat("Run", TimeSpan.FromSeconds(durationSecondsRun).ToString(), mileageRun, caloriesRun), 
+                                new TotalStat("Walk", TimeSpan.FromSeconds(durationSecondsWalk).ToString(), mileageWalk, caloriesWalk)
+                            };
+
+                            return allStats;
                         }
                     }
                 }
@@ -486,9 +487,8 @@ namespace DataRelay
             catch (Exception ex)
             {
                 GenericErrorHandler(ex, "Couldn't get total stats.");
+                return null;
             }
-
-            return totalstats.ToArray();
         }
 
         public Path[] GetPath()

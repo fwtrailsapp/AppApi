@@ -35,6 +35,14 @@ namespace DataRelay
     [DataContract]
     public class TotalStat
     {
+        public TotalStat(string type, string totalDuration, float totalDistance, int totalCalories)
+        {
+            this.type = type;
+            total_duration = totalDuration;
+            total_distance = totalDistance;
+            total_calories = totalCalories;
+        }
+
         [DataMember]
         public string type { get; set; }
         [DataMember]
