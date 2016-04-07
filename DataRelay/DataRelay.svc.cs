@@ -348,7 +348,10 @@ namespace DataRelay
 
                     activities = new List<Activity>();
 
-                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID ORDER BY A.startTime DESC";
+                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
+                                            "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
+                                            "WHERE A.[accountUserID] = @accountUserID " +
+                                            "ORDER BY A.startTime DESC";
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
