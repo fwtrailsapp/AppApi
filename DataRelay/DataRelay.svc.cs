@@ -405,44 +405,48 @@ namespace DataRelay
 
                     activities = new List<Activity>();
 
-                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode WHERE A.[accountUserID] = @accountUserID";
+                    const string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
+                                                  "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
+                                                  "WHERE A.[accountUserID] = @accountUserID";
 
-                    using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
+                    using (var cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
                         cmdGetAllActivity.Parameters.AddWithValue("@accountUserID", RequestAccountId);
 
-                        using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
+                        using (var reader = cmdGetAllActivity.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 while (reader.Read())
                                 {
-                                    Activity a = new Activity();
-                                    a.duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString();
-                                    a.mileage = (float)reader.GetDouble(reader.GetOrdinal("distance"));
-                                    a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
-                                    a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
+                                    var a = new Activity
+                                    {
+                                        duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString(),
+                                        mileage = (float) reader.GetDouble(reader.GetOrdinal("distance")),
+                                        calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned")),
+                                        exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"))
+                                    };
 
                                     activities.Add(a); 
                                 }
                             }
 
-                            int durationSecondsOverall = 0;
-                            int durationSecondsBike = 0;
-                            int durationSecondsRun = 0;
-                            int durationSecondsWalk = 0;
+                            var durationSecondsOverall = 0;
+                            var durationSecondsBike = 0;
+                            var durationSecondsRun = 0;
+                            var durationSecondsWalk = 0;
 
-                            float mileageOverall = 0f;
-                            float mileageBike = 0f;
-                            float mileageRun = 0f;
-                            float mileageWalk = 0f;
+                            var mileageOverall = 0f;
+                            var mileageBike = 0f;
+                            var mileageRun = 0f;
+                            var mileageWalk = 0f;
 
-                            int caloriesOverall = 0;
-                            int caloriesBike = 0;
-                            int caloriesRun = 0;
-                            int caloriesWalk = 0;
+                            var caloriesOverall = 0;
+                            var caloriesBike = 0;
+                            var caloriesRun = 0;
+                            var caloriesWalk = 0;
 
-                            foreach (Activity a in activities)
+                            foreach (var a in activities)
                             {
                                 durationSecondsOverall += (int) TimeSpan.Parse(a.duration).TotalSeconds;
                                 mileageOverall += a.mileage;
