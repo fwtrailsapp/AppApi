@@ -395,15 +395,11 @@ namespace DataRelay
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
             RequireLoginToken();
 
-            List<Activity> activities = null;
-
             try
             {
-                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                using (var sqlConn = new SqlConnection(ConnectionString))
                 {
                     sqlConn.Open();
-
-                    activities = new List<Activity>();
 
                     const string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
                                                   "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
@@ -415,6 +411,8 @@ namespace DataRelay
 
                         using (var reader = cmdGetAllActivity.ExecuteReader())
                         {
+                            var activities = new List<Activity>();
+
                             if (reader.HasRows)
                             {
                                 while (reader.Read())
