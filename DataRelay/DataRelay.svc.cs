@@ -434,12 +434,12 @@ namespace DataRelay
                                 while (reader.Read())
                                 {
                                     Activity a = new Activity();
-                                        a.duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString();
-                                        a.mileage = (float)reader.GetDouble(reader.GetOrdinal("distance"));
-                                        a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
-                                        a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
+                                    a.duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString();
+                                    a.mileage = (float)reader.GetDouble(reader.GetOrdinal("distance"));
+                                    a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
+                                    a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
 
-                                        middleInt += reader.GetInt32(reader.GetOrdinal("duration"));
+                                    middleInt += reader.GetInt32(reader.GetOrdinal("duration"));
 
 
                                     overall.total_duration = TimeSpan.FromSeconds(middleInt).ToString();
