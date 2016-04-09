@@ -49,22 +49,22 @@ namespace DataRelay
                         cmdCreateAcct.Parameters.AddWithValue("@username", username);
                         cmdCreateAcct.Parameters.AddWithValue("@password", password);
 
-                        if (!birthyear.Equals(null))
+                        if (birthyear != null)
                             cmdCreateAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
                             cmdCreateAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
-                        if (!weight.Equals(null))
+                        if (weight != null)
                             cmdCreateAcct.Parameters.AddWithValue("@weight", weight);
                         else
                             cmdCreateAcct.Parameters.AddWithValue("@weight", DBNull.Value);
 
-                        if (!sex.Equals(null))
+                        if (sex != null)
                             cmdCreateAcct.Parameters.AddWithValue("@sex", sex);
                         else
                             cmdCreateAcct.Parameters.AddWithValue("@sex", DBNull.Value);
 
-                        if (!height.Equals(null))
+                        if (height != null)
                             cmdCreateAcct.Parameters.AddWithValue("@height", height);
                         else
                             cmdCreateAcct.Parameters.AddWithValue("@height", DBNull.Value);
