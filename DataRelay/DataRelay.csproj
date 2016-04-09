@@ -120,6 +120,7 @@
     <Compile Include="DataRelayObjects.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LoginToken.cs" />
+    <Compile Include="PasswordStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
