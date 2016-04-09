@@ -11,24 +11,34 @@ namespace DataRelay
 {
     public partial class DataRelay
     {
-        public Boolean accountExists(SqlConnection sqlConn, string username)
+        private bool accountExists(SqlConnection sqlConn, string username)
         {
-            string queryExists = "SELECT COUNT(*) FROM [Account] WHERE [username]=@username";
+            const string queryExists = "SELECT COUNT(*) FROM [Account] WHERE [username]=@username";
 
-            using (SqlCommand cmdQueryExists = new SqlCommand(queryExists, sqlConn))
+            using (var cmdQueryExists = new SqlCommand(queryExists, sqlConn))
             {
                 cmdQueryExists.Parameters.AddWithValue("@username", username);
 
-                int acctCount = 0;
-                Int32.TryParse(cmdQueryExists.ExecuteScalar().ToString(), out acctCount);
+                int acctCount;
+                int.TryParse(cmdQueryExists.ExecuteScalar().ToString(), out acctCount);
 
-                if (acctCount != 1)
+                return acctCount == 1;
+            }
+        }
+
+        private string GetAccountHash(SqlConnection sqlConn, string username)
+        {
+            const string queryHash = "SELECT TOP 1 [password] FROM [Account] WHERE [username]=@username";
+
+            using (var cmdQueryHash = new SqlCommand(queryHash, sqlConn))
+            {
+                cmdQueryHash.Parameters.AddWithValue("@username", username);
+
+                using (var reader = cmdQueryHash.ExecuteReader())
                 {
-                    return false;
-                }
-                else
-                {
-                    return true;
+                    if (!reader.HasRows) return string.Empty;
+                    if (!reader.Read()) return string.Empty;
+                    return reader.GetString(reader.GetOrdinal("password"));
                 }
             }
         }
