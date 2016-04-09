@@ -47,7 +47,7 @@ namespace DataRelay
                         cmdCreateAcct.Parameters.AddWithValue("@accountID", accountID);
 
                         cmdCreateAcct.Parameters.AddWithValue("@username", username);
-                        cmdCreateAcct.Parameters.AddWithValue("@password", password);
+                        cmdCreateAcct.Parameters.AddWithValue("@password", PasswordStorage.Hash(password));
 
                         if (birthyear != null)
                             cmdCreateAcct.Parameters.AddWithValue("@birthyear", birthyear);
@@ -105,7 +105,7 @@ namespace DataRelay
                     {
                         cmdEditAcct.Parameters.AddWithValue("@accountID", RequestAccountId);
                         cmdEditAcct.Parameters.AddWithValue("@username", username);
-                        cmdEditAcct.Parameters.AddWithValue("@password", password);
+                        cmdEditAcct.Parameters.AddWithValue("@password", PasswordStorage.Hash(password));
 
                         if (!birthyear.Equals(null))
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", birthyear);
@@ -163,8 +163,9 @@ namespace DataRelay
                         throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
                     }
 
-                    //TODO: check password
-                    if (false)
+                    //check password
+                    var userHashedPassword = GetAccountHash(sqlConn, username);
+                    if (!PasswordStorage.PasswordMatch(password, userHashedPassword))
                     {
                         _log.WriteTraceLine(this, $"Account '{username}' specified the wrong password!");
                         throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
