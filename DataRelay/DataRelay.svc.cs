@@ -107,22 +107,22 @@ namespace DataRelay
                         cmdEditAcct.Parameters.AddWithValue("@username", username);
                         cmdEditAcct.Parameters.AddWithValue("@password", PasswordStorage.Hash(password));
 
-                        if (!birthyear.Equals(null))
+                        if (birthyear != null)
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", birthyear);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@birthyear", DBNull.Value);
 
-                        if (!weight.Equals(null))
+                        if (weight != null)
                             cmdEditAcct.Parameters.AddWithValue("@weight", weight);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@weight", DBNull.Value);
 
-                        if (!sex.Equals(null))
+                        if (sex != null)
                             cmdEditAcct.Parameters.AddWithValue("@sex", sex);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@sex", DBNull.Value);
 
-                        if(!height.Equals(null))
+                        if(height != null)
                             cmdEditAcct.Parameters.AddWithValue("@height", height);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@height", DBNull.Value);
