@@ -11,6 +11,12 @@ namespace DataRelay
 {
     public partial class DataRelay
     {
+        /// <summary>
+        /// Returns true if an account with the specified username already exists, false otherwise.
+        /// </summary>
+        /// <param name="sqlConn">the database connection to use</param>
+        /// <param name="username">the username of which to determine the availability</param>
+        /// <returns></returns>
         private bool accountExists(SqlConnection sqlConn, string username)
         {
             const string queryExists = "SELECT COUNT(*) FROM [Account] WHERE [username]=@username";
@@ -26,6 +32,11 @@ namespace DataRelay
             }
         }
 
+        /// <summary>
+        /// Get the password hash for an account given its username.
+        /// </summary>
+        /// <param name="sqlConn">the database connection to use</param>
+        /// <param name="username">the username of the account to lookup</param>
         private string GetAccountHash(SqlConnection sqlConn, string username)
         {
             const string queryHash = "SELECT TOP 1 [password] FROM [Account] WHERE [username]=@username";
@@ -43,6 +54,11 @@ namespace DataRelay
             }
         }
 
+        /// <summary>
+        /// Retrieve an account's ID given its username.
+        /// </summary>
+        /// <param name="sqlConn">the database connection to use</param>
+        /// <param name="username">the username of the account to lookup</param>
         private static string GetAccountGuid(SqlConnection sqlConn, string username)
         {
             const string queryGetGuid = "SELECT TOP 1 [accountID] FROM [Account] where [username]=@username";
@@ -61,6 +77,11 @@ namespace DataRelay
             }
         }
 
+        /// <summary>
+        /// Get the exercise type ID associated with the <see cref="exercise_type"/>.
+        /// </summary>
+        /// <param name="sqlConn">the database connection to use</param>
+        /// <param name="exercise_type">the excersize type to lookup: "walk", "bike", or "run"</param>
         public int getExerciseTypeID(SqlConnection sqlConn, string exercise_type)
         {
             int lookUpID = -1;
@@ -91,6 +112,10 @@ namespace DataRelay
             return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);
         }
 
+        /// <summary>
+        /// Using the <see cref="AccountSessionManager"/>, get the account ID from the request's login token.
+        /// </summary>
+        /// <returns>the accountID if the user is logged in, null otherwise</returns>
         private string RequestAccountId
         {
             get
@@ -117,6 +142,9 @@ namespace DataRelay
             }
         }
 
+        /// <summary>
+        /// Throws an HTTP 401 if the client is not logged in. After calling, the <see cref="RequestAccountId"/> is guaranteed to be non-null.
+        /// </summary>
         private void RequireLoginToken()
         {
             if (RequestAccountId == null)
@@ -126,8 +154,16 @@ namespace DataRelay
             }
         }
 
+        /// <summary>
+        /// The database connection string
+        /// </summary>
         private static string ConnectionString => ConfigurationManager.AppSettings["connectionString"];
         
+        /// <summary>
+        /// Throw the exception as a HTTP 500 if it isn't already some other HTTP code.
+        /// </summary>
+        /// <param name="ex">the exception to make into a <see cref="WebFaultException"/></param>
+        /// <param name="detail">the error message to accopany the HTTP response</param>
         private void GenericErrorHandler(Exception ex, string detail)
         {
             _log.WriteErrorLog(ex.GetType(), ex);
