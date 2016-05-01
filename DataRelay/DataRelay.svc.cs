@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data.SqlClient;
 using System.Net;
 using System.ServiceModel;
@@ -8,7 +7,8 @@ using System.ServiceModel.Web;
 
 namespace DataRelay
 {
-    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true, InstanceContextMode = InstanceContextMode.PerCall)]
+    [ServiceBehavior(ConcurrencyMode = ConcurrencyMode.Multiple, IncludeExceptionDetailInFaults = true,
+        InstanceContextMode = InstanceContextMode.PerCall)]
     public partial class DataRelay : IDataRelay
     {
         private static Logger _log;
@@ -22,7 +22,8 @@ namespace DataRelay
                 _sessionManager = new AccountSessionManager();
         }
 
-        public void CreateNewAccount(string username, string password, int? birthyear, int? weight, string sex, int? height)
+        public void CreateNewAccount(string username, string password, int? birthyear, int? weight, string sex,
+            int? height)
         {
             _log.WriteTraceLine(this, $"Creating new account: {username}");
 
@@ -38,8 +39,9 @@ namespace DataRelay
                         throw new WebFaultException<string>("Account already exists", HttpStatusCode.Conflict);
                     }
 
-                    string createAcctQuery = "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
-                    
+                    string createAcctQuery =
+                        "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
+
                     string accountID = GenerateAccountGuid();
 
                     using (SqlCommand cmdCreateAcct = new SqlCommand(createAcctQuery, sqlConn))
@@ -99,7 +101,8 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string editAccount = "UPDATE ACCOUNT SET username=@username, password=@password, birthyear=@birthyear, weight=@weight, sex=@sex, height=@height WHERE accountID=@accountID";
+                    string editAccount =
+                        "UPDATE ACCOUNT SET username=@username, password=@password, birthyear=@birthyear, weight=@weight, sex=@sex, height=@height WHERE accountID=@accountID";
 
                     using (SqlCommand cmdEditAcct = new SqlCommand(editAccount, sqlConn))
                     {
@@ -122,7 +125,7 @@ namespace DataRelay
                         else
                             cmdEditAcct.Parameters.AddWithValue("@sex", DBNull.Value);
 
-                        if(height != null)
+                        if (height != null)
                             cmdEditAcct.Parameters.AddWithValue("@height", height);
                         else
                             cmdEditAcct.Parameters.AddWithValue("@height", DBNull.Value);
@@ -160,7 +163,8 @@ namespace DataRelay
                     if (acctGuid == string.Empty)
                     {
                         _log.WriteTraceLine(this, $"Account '{username}' does not exist!");
-                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                        throw new WebFaultException<string>("Username or password is incorrect.",
+                            HttpStatusCode.Unauthorized);
                     }
 
                     //check password
@@ -168,7 +172,8 @@ namespace DataRelay
                     if (!PasswordStorage.PasswordMatch(password, userHashedPassword))
                     {
                         _log.WriteTraceLine(this, $"Account '{username}' specified the wrong password!");
-                        throw new WebFaultException<string>("Username or password is incorrect.", HttpStatusCode.Unauthorized);
+                        throw new WebFaultException<string>("Username or password is incorrect.",
+                            HttpStatusCode.Unauthorized);
                     }
 
                     var token = _sessionManager.Add(acctGuid);
@@ -219,7 +224,8 @@ namespace DataRelay
 
                                 return account;
                             }
-                            throw new WebFaultException<string>("Couldn't get account info.", HttpStatusCode.InternalServerError);
+                            throw new WebFaultException<string>("Couldn't get account info.",
+                                HttpStatusCode.InternalServerError);
                         }
                     }
                 }
@@ -231,7 +237,8 @@ namespace DataRelay
             }
         }
 
-        public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned, string exercise_type, string path)
+        public void CreateNewActivity(string time_started, string duration, float mileage, int calories_burned,
+            string exercise_type, string path)
         {
             _log.WriteTraceLine(this, $"Creating a new activity for '{RequestAccountId}'!");
             RequireLoginToken();
@@ -243,11 +250,13 @@ namespace DataRelay
                     sqlConn.Open();
 
                     #region -- CREATE ACTIVITY --
+
                     int exerciseLookupId = getExerciseTypeID(sqlConn, exercise_type);
                     DateTime timeStamp = Convert.ToDateTime(time_started);
                     TimeSpan ActTime = TimeSpan.Parse(duration);
 
-                    string createActivityQuery = "INSERT INTO ACTIVITY (accountUserID, exerciseType, startTime, duration, distance, caloriesBurned) VALUES (@accountUserID, @exerciseType, @startTime, @duration, @distance, @caloriesBurned)";
+                    string createActivityQuery =
+                        "INSERT INTO ACTIVITY (accountUserID, exerciseType, startTime, duration, distance, caloriesBurned) VALUES (@accountUserID, @exerciseType, @startTime, @duration, @distance, @caloriesBurned)";
 
                     using (SqlCommand cmdCreateActivity = new SqlCommand(createActivityQuery, sqlConn))
                     {
@@ -257,11 +266,12 @@ namespace DataRelay
                         cmdCreateActivity.Parameters.AddWithValue("@duration", ActTime.TotalSeconds);
                         cmdCreateActivity.Parameters.AddWithValue("@distance", mileage);
                         cmdCreateActivity.Parameters.AddWithValue("@caloriesBurned", calories_burned);
-                        
+
                         if (cmdCreateActivity.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Activity could not be created for '{RequestAccountId}'!");
-                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
+                            throw new WebFaultException<string>("Activity could not be created.",
+                                HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -271,7 +281,8 @@ namespace DataRelay
 
                     int activityID;
 
-                    string getActivityIDQuery = "SELECT TOP 1 [activityID] FROM ACTIVITY WHERE accountUserID=@accountUserID AND exerciseType=@exerciseType AND startTime=@startTime AND duration=@duration AND distance=@distance AND caloriesBurned=@caloriesBurned";
+                    string getActivityIDQuery =
+                        "SELECT TOP 1 [activityID] FROM ACTIVITY WHERE accountUserID=@accountUserID AND exerciseType=@exerciseType AND startTime=@startTime AND duration=@duration AND distance=@distance AND caloriesBurned=@caloriesBurned";
 
                     using (SqlCommand cmdGetActivityID = new SqlCommand(getActivityIDQuery, sqlConn))
                     {
@@ -293,7 +304,8 @@ namespace DataRelay
                             {
                                 _log.WriteTraceLine(this,
                                     $"ActivityID from new Activity for '{RequestAccountId}' could not be retrieved!");
-                                throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
+                                throw new WebFaultException<string>("Activity could not be created.",
+                                    HttpStatusCode.InternalServerError);
                             }
                         }
 
@@ -301,7 +313,8 @@ namespace DataRelay
                         {
                             _log.WriteTraceLine(this,
                                 $"Unknown error occured upon retreiving ActivityID for '{RequestAccountId}'!");
-                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
+                            throw new WebFaultException<string>("Activity could not be created.",
+                                HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -309,7 +322,8 @@ namespace DataRelay
 
                     #region -- CREATE PATH SEGMENT --
 
-                    string createPathSegmentQuery = "INSERT INTO [PathSegment] (activityID, path) VALUES (@activityID, @path)";
+                    string createPathSegmentQuery =
+                        "INSERT INTO [PathSegment] (activityID, path) VALUES (@activityID, @path)";
 
                     using (SqlCommand cmdCreatePathSegmentQuery = new SqlCommand(createPathSegmentQuery, sqlConn))
                     {
@@ -319,7 +333,8 @@ namespace DataRelay
                         if (cmdCreatePathSegmentQuery.ExecuteNonQuery() != 1)
                         {
                             _log.WriteTraceLine(this, $"Failed to create PathSegment record for '{RequestAccountId}'!");
-                            throw new WebFaultException<string>("Activity could not be created.", HttpStatusCode.InternalServerError);
+                            throw new WebFaultException<string>("Activity could not be created.",
+                                HttpStatusCode.InternalServerError);
                         }
                     }
 
@@ -349,10 +364,11 @@ namespace DataRelay
 
                     activities = new List<Activity>();
 
-                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
-                                            "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
-                                            "WHERE A.[accountUserID] = @accountUserID " +
-                                            "ORDER BY A.startTime DESC";
+                    string getAllActivity =
+                        "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
+                        "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
+                        "WHERE A.[accountUserID] = @accountUserID " +
+                        "ORDER BY A.startTime DESC";
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
@@ -362,10 +378,13 @@ namespace DataRelay
                         {
                             if (reader.HasRows)
                             {
-                                while(reader.Read())
+                                while (reader.Read())
                                 {
-                                    var timeStarted = reader.GetDateTime(reader.GetOrdinal("startTime")).ToString("yyyy-MM-dd'T'hh:mm:ss");
-                                    var duration = TimeSpan.FromSeconds(reader.GetInt32(reader.GetOrdinal("duration"))).ToString();
+                                    var timeStarted =
+                                        reader.GetDateTime(reader.GetOrdinal("startTime"))
+                                            .ToString("yyyy-MM-dd'T'hh:mm:ss");
+                                    var duration =
+                                        TimeSpan.FromSeconds(reader.GetInt32(reader.GetOrdinal("duration"))).ToString();
 
                                     var a = new Activity
                                     {
@@ -402,9 +421,10 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    const string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
-                                                  "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
-                                                  "WHERE A.[accountUserID] = @accountUserID";
+                    const string getAllActivity =
+                        "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned " +
+                        "FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode " +
+                        "WHERE A.[accountUserID] = @accountUserID";
 
                     using (var cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
@@ -430,7 +450,7 @@ namespace DataRelay
                                         exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"))
                                     };
 
-                                    activities.Add(a); 
+                                    activities.Add(a);
                                 }
                             }
 
@@ -457,33 +477,34 @@ namespace DataRelay
 
                                 if (a.exercise_type.Equals("bike"))
                                 {
-                                    durationSecondsBike += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    durationSecondsBike += (int) TimeSpan.Parse(a.duration).TotalSeconds;
                                     mileageBike += a.mileage;
                                     caloriesBike += a.calories_burned;
-
                                 }
                                 else if (a.exercise_type.Equals("run"))
                                 {
-                                    durationSecondsRun += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    durationSecondsRun += (int) TimeSpan.Parse(a.duration).TotalSeconds;
                                     mileageRun += a.mileage;
                                     caloriesRun += a.calories_burned;
-
                                 }
                                 else if (a.exercise_type.Equals("walk"))
                                 {
-                                    durationSecondsWalk += (int)TimeSpan.Parse(a.duration).TotalSeconds;
+                                    durationSecondsWalk += (int) TimeSpan.Parse(a.duration).TotalSeconds;
                                     mileageWalk += a.mileage;
                                     caloriesWalk += a.calories_burned;
-
                                 }
                             }
 
                             var allStats = new[]
                             {
-                                new TotalStat("Overall", TimeSpan.FromSeconds(durationSecondsOverall).ToString(), mileageOverall, caloriesOverall), 
-                                new TotalStat("Bike", TimeSpan.FromSeconds(durationSecondsBike).ToString(), mileageBike, caloriesBike), 
-                                new TotalStat("Run", TimeSpan.FromSeconds(durationSecondsRun).ToString(), mileageRun, caloriesRun), 
-                                new TotalStat("Walk", TimeSpan.FromSeconds(durationSecondsWalk).ToString(), mileageWalk, caloriesWalk)
+                                new TotalStat("Overall", TimeSpan.FromSeconds(durationSecondsOverall).ToString(),
+                                    mileageOverall, caloriesOverall),
+                                new TotalStat("Bike", TimeSpan.FromSeconds(durationSecondsBike).ToString(), mileageBike,
+                                    caloriesBike),
+                                new TotalStat("Run", TimeSpan.FromSeconds(durationSecondsRun).ToString(), mileageRun,
+                                    caloriesRun),
+                                new TotalStat("Walk", TimeSpan.FromSeconds(durationSecondsWalk).ToString(), mileageWalk,
+                                    caloriesWalk)
                             };
 
                             return allStats;
@@ -522,7 +543,6 @@ namespace DataRelay
                             {
                                 while (reader.Read())
                                 {
-
                                     Path a = new Path();
                                     a.path = reader.GetString(reader.GetOrdinal("path"));
                                     pathArray.Add(a);
@@ -556,7 +576,8 @@ namespace DataRelay
                     activities = new List<Activity>();
                     allStat = new List<AllStat>();
 
-                    string getAllActivity = "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode";
+                    string getAllActivity =
+                        "SELECT E.exerciseDescription as exerciseType, A.startTime, A.duration, A.distance, A.caloriesBurned FROM Activity A JOIN exerciseType E on A.exerciseType = E.lookupCode";
 
                     using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllActivity, sqlConn))
                     {
@@ -582,7 +603,7 @@ namespace DataRelay
                                 {
                                     Activity a = new Activity();
                                     a.duration = reader.GetInt32(reader.GetOrdinal("duration")).ToString();
-                                    a.mileage = (float)reader.GetDouble(reader.GetOrdinal("distance"));
+                                    a.mileage = (float) reader.GetDouble(reader.GetOrdinal("distance"));
                                     a.calories_burned = reader.GetInt32(reader.GetOrdinal("caloriesBurned"));
                                     a.exercise_type = reader.GetString(reader.GetOrdinal("exerciseType"));
 
@@ -599,7 +620,6 @@ namespace DataRelay
                                         bike.total_duration = TimeSpan.FromSeconds(middleIntBike).ToString();
                                         bike.total_distance += a.mileage;
                                         bike.total_calories += a.calories_burned;
-
                                     }
                                     else if (a.exercise_type.Equals("run"))
                                     {
@@ -607,7 +627,6 @@ namespace DataRelay
                                         run.total_duration = TimeSpan.FromSeconds(middleIntRun).ToString();
                                         run.total_distance += a.mileage;
                                         run.total_calories += a.calories_burned;
-
                                     }
                                     else if (a.exercise_type.Equals("walk"))
                                     {
@@ -615,11 +634,9 @@ namespace DataRelay
                                         walk.total_duration = TimeSpan.FromSeconds(middleIntWalk).ToString();
                                         walk.total_distance += a.mileage;
                                         walk.total_calories += a.calories_burned;
-
                                     }
 
                                     activities.Add(a);
-
                                 }
                                 allStat.Add(overall);
                                 allStat.Add(bike);
