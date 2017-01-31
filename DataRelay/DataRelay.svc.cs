@@ -348,7 +348,78 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Activity could not be created.");
             }
         }
+        public void CreateNewTicket(string title, string description, string gps, string imageLink, string date,
+            string type, string color, string username, int active)
+        {
+            _log.WriteTraceLine(this, $"Creating new ticket: {title}");
 
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string createTicketQuery =
+                        "INSERT INTO Tickets (ticketID, title, description, gps, imageLink, date, type, color, username, active) VALUES (@ticketID, @title, @description, @gps, @imageLink, @date, @type, @color, @username, @active)";
+                   
+                    string ticketID = GenerateAccountGuid();
+
+                    using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
+                    {
+                        cmdCreateTicket.Parameters.AddWithValue("@ticketID", ticketID);
+                        cmdCreateTicket.Parameters.AddWithValue("@username", GetAccountUsername(sqlConn, RequestAccountId));
+                        cmdCreateTicket.Parameters.AddWithValue("@active", active);
+                        cmdCreateTicket.Parameters.AddWithValue("@type", getReportTypeID(sqlConn, type));
+                        cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, color));
+
+                        if (title != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@title", title);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@title", DBNull.Value);
+
+                        if (description != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@description", description);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@description", DBNull.Value);
+
+                        if (gps != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@gps", gps);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@gps", DBNull.Value);
+
+                        if (imageLink != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imageLink);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
+
+                        if (date != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@date", date);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@date", DBNull.Value);
+
+                        if (imageLink != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imageLink);
+                        else
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
+
+                        int result = cmdCreateTicket.ExecuteNonQuery();
+
+                        if (result != 1)
+                        {
+                            _log.WriteTraceLine(this, $"Ticket '{title}' was not created!");
+                            throw new WebFaultException<string>("Ticket couldn't be created.",
+                                HttpStatusCode.InternalServerError);
+                        }
+
+                        _log.WriteTraceLine(this, $"Ticket '{title}' created successfully!");
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
         public Activity[] GetActivitiesForUser()
         {
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
@@ -653,6 +724,57 @@ namespace DataRelay
             }
 
             return allStat.ToArray();
+        }
+
+        public Ticket[] GetTickets()
+        {
+            _log.WriteTraceLine(this, $"Retreiving all tickets");
+            RequireLoginToken();
+
+            List<Ticket> tickets = null;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    tickets = new List<Ticket>();
+
+                    string getAllTickets = "SELECT * From Tickets Order By date DESC";
+
+                    using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllTickets, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    var a = new Ticket
+                                    {
+                                        title = reader.GetString(reader.GetOrdinal("title")),
+                                        description = reader.GetString(reader.GetOrdinal("description")),
+                                        gps = reader.GetString(reader.GetOrdinal("gps")),
+                                        imageLink = reader.GetString(reader.GetOrdinal("imageLink")),
+                                        date = reader.GetString(reader.GetOrdinal("date")),
+                                        ticketType = reader.GetString(reader.GetOrdinal("type")),
+                                        color = reader.GetString(reader.GetOrdinal("color")),
+                                    };
+
+                                    tickets.Add(a);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Activities could not be retrieved.");
+            }
+
+            return tickets.ToArray();
         }
     }
 }

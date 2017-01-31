@@ -78,6 +78,29 @@ namespace DataRelay
         }
 
         /// <summary>
+        /// Gets username associated with an account ID
+        /// </summary>
+        /// <param name="sqlConn"></param>
+        /// <param name="accountID"></param>
+        /// <returns></returns>
+        private static string GetAccountUsername(SqlConnection sqlConn, string accountID)
+        {
+            const string queryGetAccountUsername = "SELECT TOP 1 [username] From [Account] WHERE [accountID]=@accountID";
+
+            using (var cmdQueryGetAccountUsername = new SqlCommand(queryGetAccountUsername, sqlConn))
+            {
+                cmdQueryGetAccountUsername.Parameters.AddWithValue("accountID", accountID);
+
+                using (var reader = cmdQueryGetAccountUsername.ExecuteReader())
+                {
+                    if (!reader.HasRows) return string.Empty;
+                    if (!reader.Read()) return string.Empty;
+                    if (reader["username"].Equals(DBNull.Value)) return string.Empty;
+                    return reader.GetString(reader.GetOrdinal("username"));
+                }
+            }
+        }
+        /// <summary>
         /// Get the exercise type ID associated with the <see cref="exercise_type"/>.
         /// </summary>
         /// <param name="sqlConn">the database connection to use</param>
@@ -106,7 +129,75 @@ namespace DataRelay
 
             return lookUpID;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sqlConn"></param>
+        /// <param name="report_type"></param>
+        /// <returns></returns>
+        public int getReportTypeID(SqlConnection sqlConn, string report_type)
+        {
+            int lookUpID = -1;
 
+            string reportIDLook = "SELECT TOP 1 [code] FROM [TicketType] where [description]=@description";
+
+            using (SqlCommand cmdReportLook = new SqlCommand(reportIDLook, sqlConn))
+            {
+                cmdReportLook.Parameters.AddWithValue("description", report_type);
+
+                using (SqlDataReader reader = cmdReportLook.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+
+                        if (!reader["code"].Equals(DBNull.Value))
+                            lookUpID = reader.GetInt32(reader.GetOrdinal("code"));
+                    }
+                }
+            }
+
+            return lookUpID;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sqlConn"></param>
+        /// <param name="report_type"></param>
+        /// <returns></returns>
+        public string getReportColor(SqlConnection sqlConn, string report_type)
+        {
+            string color = "Black";
+
+            string reportColorLook = "SELECT TOP 1 [color] FROM [TicketType] where [description]=@description";
+
+            using (SqlCommand cmdColorLook = new SqlCommand(reportColorLook, sqlConn))
+            {
+                cmdColorLook.Parameters.AddWithValue("description", report_type);
+
+                using (SqlDataReader reader = cmdColorLook.ExecuteReader())
+                {
+                    if (reader.HasRows)
+                    {
+                        reader.Read();
+
+                        if (!reader["color"].Equals(DBNull.Value))
+                        {
+                            color = reader.GetString(reader.GetOrdinal("color"));
+                        }
+                    }
+                }
+
+                return color;
+            }
+
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private static string GenerateAccountGuid()
         {
             return Guid.NewGuid().ToString().Replace("-", string.Empty).Replace("+", string.Empty).Substring(0, 20);

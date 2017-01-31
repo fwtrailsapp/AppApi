@@ -70,4 +70,24 @@ namespace DataRelay
         [DataMember]
         public string path { get; set; }
     }
+    [DataContract]
+    public class Ticket
+    {
+        [DataMember]
+        public string title { get; set; }
+        [DataMember]
+        public string description { get; set; }
+        [DataMember]
+        public string gps { get; set; }
+        [DataMember]
+        public string imageLink { get; set; }
+        [DataMember]
+        public string date { get; set; }
+        [DataMember]
+        public string ticketType { get; set; }
+        [DataMember]
+        public string color { get; set; }
+        [DataMember]
+        public int active { get; set; }
+    }
 }

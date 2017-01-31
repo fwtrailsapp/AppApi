@@ -99,6 +99,39 @@ namespace DataRelay
         Activity[] GetActivitiesForUser();
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="description"></param>
+        /// <param name="gps"></param>
+        /// <param name="imageLink"></param>
+        /// <param name="date"></param>
+        /// <param name="type"></param>
+        /// <param name="color"></param>
+        /// <param name="username"></param>
+        /// <param name="active"></param>
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "trails/api/1/Ticket",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        void CreateNewTicket(string title, string description, string gps, string imageLink, string date,
+            string type, string color, string username, int active);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Ticket",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+
+        Ticket[]  GetTickets();
+
+        /// <summary>
         ///     Gets the total statistics for the account. Must be logged in. Broken up into 4: overall, biking, running, and
         ///     walking. HTTP 401 if not logged in. HTTP 500 if some other error.
         /// </summary>
@@ -108,6 +141,7 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Statistics",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
+
         TotalStat[] GetTotalStatsForUser();
 
         /// <summary>
