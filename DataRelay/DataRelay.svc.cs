@@ -420,6 +420,56 @@ namespace DataRelay
 
             }
         }
+
+        //Delete after testing
+        public void iOSTest(string test)
+        {
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string testQuery = "Insert into iOSTESt (field) Values (@test)";
+
+                    using (SqlCommand cmdTest = new SqlCommand(testQuery, sqlConn))
+                    {
+                        cmdTest.Parameters.AddWithValue("@test", test);
+
+                        cmdTest.ExecuteNonQuery();
+                    }
+                    
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't get account info.");
+            }
+        }
+        public void CloseTicket(int id)
+        {
+            _log.WriteTraceLine(this, $"Closing ticket number {id}");
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string closeQuery = "Update Ticket Set active = 0 Where id=@id";
+
+                    using (SqlCommand cmdClose = new SqlCommand(closeQuery, sqlConn))
+                    {
+                        cmdClose.Parameters.AddWithValue("@id", id);
+
+                        cmdClose.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't close ticket");
+            }
+    }
         public Activity[] GetActivitiesForUser()
         {
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");

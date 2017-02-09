@@ -119,6 +119,17 @@ namespace DataRelay
         void CreateNewTicket(string title, string description, string gps, string imageLink, string date,
             string type, string color, string username, int active);
 
+        //delete after testing
+        void iOSTest(string test);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "trails/api/1/Ticket/Close",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+
+        void CloseTicket(int id);
         /// <summary>
         /// 
         /// </summary>
