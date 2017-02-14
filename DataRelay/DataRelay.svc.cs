@@ -347,8 +347,8 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Activity could not be created.");
             }
         }
-        public void CreateNewTicket(int id, string type, string description, int? active, string imgLink, string gps,
-            string title, string date, string username, string notes, string color, string dateClosed)
+        public void CreateNewTicket(string type, string description, int? active, string imgLink, string gps,
+            string title, string date, string username, string notes, string dateClosed)
         {
             _log.WriteTraceLine(this, $"Creating new ticket: {title}");
 
@@ -359,17 +359,15 @@ namespace DataRelay
                     sqlConn.Open();
 
                     string createTicketQuery =
-                        "INSERT INTO Tickets (ticketID, title, description, gps, imageLink, date, type, color, username, active) VALUES (@ticketID, @title, @description, @gps, @imageLink, @date, @type, @color, @username, @active)";
+                        "INSERT INTO Tickets (title, description, gps, imageLink, date, type, color, username, active) VALUES (@title, @description, @gps, @imageLink, @date, @type, @color, @username, @active)";
                    
                     string ticketID = GenerateAccountGuid();
 
                     using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
                     {
-                        cmdCreateTicket.Parameters.AddWithValue("@ticketID", ticketID);
                         cmdCreateTicket.Parameters.AddWithValue("@username", GetAccountUsername(sqlConn, RequestAccountId));
                         cmdCreateTicket.Parameters.AddWithValue("@active", active);
                         cmdCreateTicket.Parameters.AddWithValue("@type", getReportTypeID(sqlConn, type));
-                        cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, color));
 
                         if (title != null)
                             cmdCreateTicket.Parameters.AddWithValue("@title", title);
@@ -803,7 +801,7 @@ namespace DataRelay
         }
 
         //Delete after testing
-        public void iOSTest(string test)
+        public void iOSTest(string problem)
         {
             try
             {
@@ -811,17 +809,14 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string testQuery = "Insert into iOSTest (field) Values (@test)";
+                    string testQuery = "Insert into iOSTest (field) Values (@problem)";
 
                     using (SqlCommand cmdTest = new SqlCommand(testQuery, sqlConn))
                     {
-                        if (test != null)
+                       
+                        if (problem != null)
                         {
-                            cmdTest.Parameters.AddWithValue("@test", test);
-                        }
-                        else
-                        {
-                            cmdTest.Parameters.AddWithValue("@test", DBNull.Value);
+                            cmdTest.Parameters.AddWithValue("@problem", problem);
                         }
                         cmdTest.ExecuteNonQuery();
                     }
