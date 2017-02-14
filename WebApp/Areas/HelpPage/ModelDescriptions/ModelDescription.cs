@@ -1,6 +1,6 @@
 using System;
 
-namespace WebApp.Areas.HelpPage.ModelDescriptions
+namespace DataRelay.Areas.HelpPage.ModelDescriptions
 {
     /// <summary>
     /// Describes a type model.

@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
 using System.Xml.XPath;
-using WebApp.Areas.HelpPage.ModelDescriptions;
+using DataRelay.Areas.HelpPage.ModelDescriptions;
 
-namespace WebApp.Areas.HelpPage
+namespace DataRelay.Areas.HelpPage
 {
     /// <summary>
     /// A custom <see cref="IDocumentationProvider"/> that reads the API documentation from an XML documentation file.

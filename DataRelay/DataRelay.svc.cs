@@ -13,7 +13,6 @@ namespace DataRelay
     {
         private static Logger _log;
         private static AccountSessionManager _sessionManager;
-
         public DataRelay()
         {
             if (_log == null)
@@ -348,8 +347,8 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Activity could not be created.");
             }
         }
-        public void CreateNewTicket(string title, string description, string gps, string imageLink, string date,
-            string type, string color, string username, int active)
+        public void CreateNewTicket(int id, string type, string description, int? active, string imgLink, string gps,
+            string title, string date, string username, string notes, string color, string dateClosed)
         {
             _log.WriteTraceLine(this, $"Creating new ticket: {title}");
 
@@ -387,8 +386,8 @@ namespace DataRelay
                         else
                             cmdCreateTicket.Parameters.AddWithValue("@gps", DBNull.Value);
 
-                        if (imageLink != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imageLink);
+                        if (imgLink != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imgLink);
                         else
                             cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
 
@@ -397,8 +396,8 @@ namespace DataRelay
                         else
                             cmdCreateTicket.Parameters.AddWithValue("@date", DBNull.Value);
 
-                        if (imageLink != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imageLink);
+                        if (imgLink != null)
+                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imgLink);
                         else
                             cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
 
@@ -421,31 +420,6 @@ namespace DataRelay
             }
         }
 
-        //Delete after testing
-        public void iOSTest(string test)
-        {
-            try
-            {
-                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
-                {
-                    sqlConn.Open();
-
-                    string testQuery = "Insert into iOSTESt (field) Values (@test)";
-
-                    using (SqlCommand cmdTest = new SqlCommand(testQuery, sqlConn))
-                    {
-                        cmdTest.Parameters.AddWithValue("@test", test);
-
-                        cmdTest.ExecuteNonQuery();
-                    }
-                    
-                }
-            }
-            catch (Exception ex)
-            {
-                GenericErrorHandler(ex, "Couldn't get account info.");
-            }
-        }
         public void CloseTicket(int id)
         {
             _log.WriteTraceLine(this, $"Closing ticket number {id}");
@@ -469,7 +443,8 @@ namespace DataRelay
             {
                 GenericErrorHandler(ex, "Couldn't close ticket");
             }
-    }
+        }
+        
         public Activity[] GetActivitiesForUser()
         {
             _log.WriteTraceLine(this, $"Retreiving all activities for user '{RequestAccountId}'");
@@ -806,9 +781,9 @@ namespace DataRelay
                                         title = reader.GetString(reader.GetOrdinal("title")),
                                         description = reader.GetString(reader.GetOrdinal("description")),
                                         gps = reader.GetString(reader.GetOrdinal("gps")),
-                                        imageLink = reader.GetString(reader.GetOrdinal("imageLink")),
+                                        imgLink = reader.GetString(reader.GetOrdinal("imageLink")),
                                         date = reader.GetString(reader.GetOrdinal("date")),
-                                        ticketType = reader.GetString(reader.GetOrdinal("type")),
+                                        type = reader.GetString(reader.GetOrdinal("type")),
                                         color = reader.GetString(reader.GetOrdinal("color")),
                                     };
 
@@ -825,6 +800,38 @@ namespace DataRelay
             }
 
             return tickets.ToArray();
+        }
+
+        //Delete after testing
+        public void iOSTest(string test)
+        {
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string testQuery = "Insert into iOSTest (field) Values (@test)";
+
+                    using (SqlCommand cmdTest = new SqlCommand(testQuery, sqlConn))
+                    {
+                        if (test != null)
+                        {
+                            cmdTest.Parameters.AddWithValue("@test", test);
+                        }
+                        else
+                        {
+                            cmdTest.Parameters.AddWithValue("@test", DBNull.Value);
+                        }
+                        cmdTest.ExecuteNonQuery();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't get account info.");
+            }
         }
     }
 }

@@ -1,10 +1,10 @@
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
-using WebApp.Areas.HelpPage.ModelDescriptions;
-using WebApp.Areas.HelpPage.Models;
+using DataRelay.Areas.HelpPage.ModelDescriptions;
+using DataRelay.Areas.HelpPage.Models;
 
-namespace WebApp.Areas.HelpPage.Controllers
+namespace DataRelay.Areas.HelpPage.Controllers
 {
     /// <summary>
     /// The controller that will handle requests for the help page.

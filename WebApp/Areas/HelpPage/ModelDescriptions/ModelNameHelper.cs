@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
-namespace WebApp.Areas.HelpPage.ModelDescriptions
+namespace DataRelay.Areas.HelpPage.ModelDescriptions
 {
     internal static class ModelNameHelper
     {

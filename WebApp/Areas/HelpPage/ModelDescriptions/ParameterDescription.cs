@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace WebApp.Areas.HelpPage.ModelDescriptions
+namespace DataRelay.Areas.HelpPage.ModelDescriptions
 {
     public class ParameterDescription
     {

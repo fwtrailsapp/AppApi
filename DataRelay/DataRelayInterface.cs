@@ -98,30 +98,35 @@ namespace DataRelay
             BodyStyle = WebMessageBodyStyle.Bare)]
         Activity[] GetActivitiesForUser();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="title"></param>
-        /// <param name="description"></param>
-        /// <param name="gps"></param>
-        /// <param name="imageLink"></param>
-        /// <param name="date"></param>
-        /// <param name="type"></param>
-        /// <param name="color"></param>
-        /// <param name="username"></param>
-        /// <param name="active"></param>
+       /// <summary>
+       /// 
+       /// </summary>
+       /// <param name="id">ticket id number</param>
+       /// <param name="type">type description of ticket. Ex: Water</param>
+       /// <param name="description">description for what or where problem is</param>
+       /// <param name="active">fixed or not</param>
+       /// <param name="imgLink">file location</param>
+       /// <param name="gps">gps coordinates for problem</param>
+       /// <param name="title">name for the problem</param>
+       /// <param name="date">date ticket was submitted</param>
+       /// <param name="username">submitted by username</param>
+       /// <param name="notes">additional notes about problem. Ex: fixed by someone</param>
+       /// <param name="color">color associated with ticket type</param>
+       /// <param name="dateClosed">date the ticket was closed</param>
         [OperationContract]
         [WebInvoke(Method = "POST",
-            UriTemplate = "trails/api/1/Ticket",
+            UriTemplate = "trails/api/1/Ticket/Create",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        void CreateNewTicket(string title, string description, string gps, string imageLink, string date,
-            string type, string color, string username, int active);
+        void CreateNewTicket(int id, string type, string description, int? active, string imgLink,
+            string gps, string title, string date, string username, string notes, string color, string dateClosed);
 
-        //delete after testing
-        void iOSTest(string test);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">id of ticket to close</param>
         [OperationContract]
         [WebInvoke(Method = "POST",
             UriTemplate = "trails/api/1/Ticket/Close",
@@ -133,7 +138,7 @@ namespace DataRelay
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>All the tickets in datebase</returns>
         [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Ticket",
@@ -177,5 +182,14 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
         Path[] GetPath();
+
+        //delte after testing
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "trails/api/1/iOSTest",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        void iOSTest(string test);
     }
 }

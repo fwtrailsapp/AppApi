@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace WebApp.Areas.HelpPage.ModelDescriptions
+namespace DataRelay.Areas.HelpPage.ModelDescriptions
 {
     public interface IModelDocumentationProvider
     {

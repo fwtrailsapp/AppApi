@@ -3,7 +3,7 @@ using System.Text;
 using System.Web;
 using System.Web.Http.Description;
 
-namespace WebApp.Areas.HelpPage
+namespace DataRelay.Areas.HelpPage
 {
     public static class ApiDescriptionExtensions
     {

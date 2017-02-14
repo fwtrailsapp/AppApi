@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Web.Http.Description;
-using WebApp.Areas.HelpPage.ModelDescriptions;
+using DataRelay.Areas.HelpPage.ModelDescriptions;
 
-namespace WebApp.Areas.HelpPage.Models
+namespace DataRelay.Areas.HelpPage.Models
 {
     /// <summary>
     /// The model that represents an API displayed on the help page.

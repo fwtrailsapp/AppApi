@@ -11,10 +11,10 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
-using WebApp.Areas.HelpPage.ModelDescriptions;
-using WebApp.Areas.HelpPage.Models;
+using DataRelay.Areas.HelpPage.ModelDescriptions;
+using DataRelay.Areas.HelpPage.Models;
 
-namespace WebApp.Areas.HelpPage
+namespace DataRelay.Areas.HelpPage
 {
     public static class HelpPageConfigurationExtensions
     {

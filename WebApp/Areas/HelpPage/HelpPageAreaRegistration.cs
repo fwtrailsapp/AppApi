@@ -1,7 +1,7 @@
 using System.Web.Http;
 using System.Web.Mvc;
 
-namespace WebApp.Areas.HelpPage
+namespace DataRelay.Areas.HelpPage
 {
     public class HelpPageAreaRegistration : AreaRegistration
     {

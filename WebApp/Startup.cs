@@ -4,9 +4,9 @@ using System.Linq;
 using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartup(typeof(WebApp.Startup))]
+[assembly: OwinStartup(typeof(DataRelay.Startup))]
 
-namespace WebApp
+namespace DataRelay
 {
     public partial class Startup
     {

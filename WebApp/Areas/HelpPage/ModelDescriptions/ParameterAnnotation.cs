@@ -1,6 +1,6 @@
 using System;
 
-namespace WebApp.Areas.HelpPage.ModelDescriptions
+namespace DataRelay.Areas.HelpPage.ModelDescriptions
 {
     public class ParameterAnnotation
     {
