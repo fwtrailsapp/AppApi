@@ -347,8 +347,8 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Activity could not be created.");
             }
         }
-        public void CreateNewTicket(string type, string description, int? active, string imgLink, string gps,
-            string title, string date, string username, string notes, string dateClosed)
+        public void CreateNewTicket(string type, string description, int? active, string imgLink, double latitude,
+            double longitude, string title, string date, string username, string notes, string dateClosed)
         {
             _log.WriteTraceLine(this, $"Creating new ticket: {title}");
 
@@ -358,47 +358,24 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string createTicketQuery =
-                        "INSERT INTO Tickets (title, description, gps, imageLink, date, type, color, username, active) VALUES (@title, @description, @gps, @imageLink, @date, @type, @color, @username, @active)";
+                    string createTicketQuery = "INSERT INTO Tickets (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
+                        +" @longitude, @title, @date, @username, @notes, @color, @dateClosed)";
                    
-                    string ticketID = GenerateAccountGuid();
-
                     using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
                     {
-                        cmdCreateTicket.Parameters.AddWithValue("@username", GetAccountUsername(sqlConn, RequestAccountId));
+                        cmdCreateTicket.Parameters.AddWithValue("@type", type);
+                        cmdCreateTicket.Parameters.AddWithValue("@description", description);
                         cmdCreateTicket.Parameters.AddWithValue("@active", active);
-                        cmdCreateTicket.Parameters.AddWithValue("@type", getReportTypeID(sqlConn, type));
-
-                        if (title != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@title", title);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@title", DBNull.Value);
-
-                        if (description != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@description", description);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@description", DBNull.Value);
-
-                        if (gps != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@gps", gps);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@gps", DBNull.Value);
-
-                        if (imgLink != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imgLink);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
-
-                        if (date != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@date", date);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@date", DBNull.Value);
-
-                        if (imgLink != null)
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", imgLink);
-                        else
-                            cmdCreateTicket.Parameters.AddWithValue("@imageLink", DBNull.Value);
-
+                        cmdCreateTicket.Parameters.AddWithValue("@imgLink", imgLink);
+                        cmdCreateTicket.Parameters.AddWithValue("@latitude", latitude);
+                        cmdCreateTicket.Parameters.AddWithValue("@longitude", longitude);
+                        cmdCreateTicket.Parameters.AddWithValue("@title", title);
+                        cmdCreateTicket.Parameters.AddWithValue("@date", date);
+                        cmdCreateTicket.Parameters.AddWithValue("@username", GetAccountUsername(sqlConn, RequestAccountId));
+                        cmdCreateTicket.Parameters.AddWithValue("@notes", notes);
+                        cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, description));
+                        cmdCreateTicket.Parameters.AddWithValue("@dateClosed", dateClosed);
+                        
                         int result = cmdCreateTicket.ExecuteNonQuery();
 
                         if (result != 1)
@@ -412,9 +389,9 @@ namespace DataRelay
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-
+                GenericErrorHandler(ex, "Could not create ticket");
             }
         }
 
@@ -778,7 +755,8 @@ namespace DataRelay
                                     {
                                         title = reader.GetString(reader.GetOrdinal("title")),
                                         description = reader.GetString(reader.GetOrdinal("description")),
-                                        gps = reader.GetString(reader.GetOrdinal("gps")),
+                                        latitude = reader.GetDouble(reader.GetOrdinal("latitude")),
+                                        longitude = reader.GetDouble(reader.GetOrdinal("longitude")),
                                         imgLink = reader.GetString(reader.GetOrdinal("imageLink")),
                                         date = reader.GetString(reader.GetOrdinal("date")),
                                         type = reader.GetString(reader.GetOrdinal("type")),

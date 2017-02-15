@@ -119,8 +119,8 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        void CreateNewTicket(string type, string description, int? active, string imgLink,
-            string gps, string title, string date, string username, string notes, string dateClosed);
+        void CreateNewTicket(string type, string description, int? active, string imgLink, double latitude,
+            double longitude, string title, string date, string username, string notes, string dateClosed);
 
 
         /// <summary>
