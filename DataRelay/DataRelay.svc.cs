@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Web;
@@ -358,24 +361,41 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string createTicketQuery = "INSERT INTO Tickets (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
+                    DateTime dateOpen = DateTime.ParseExact(date, "yyyy-MM-dd'T'hh:mm:ss", null);
+
+                    string createTicketQuery = "INSERT INTO Ticket (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
                         +" @longitude, @title, @date, @username, @notes, @color, @dateClosed)";
-                   
+
+                    
                     using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
                     {
+                        if (imgLink == null)
+                            cmdCreateTicket.Parameters.AddWithValue("@imgLink", DBNull.Value);
+                        else
+                        {
+                            byte[] bytes = Convert.FromBase64String(imgLink);
+                            string filepath = "C:/images/img_" + title.Substring(0, 5) +"_"+ date +".png";
+                            Image image;
+
+                            using (MemoryStream ms = new MemoryStream(bytes))
+                            {
+                                image = Image.FromStream(ms);
+                                image.Save(filepath, System.Drawing.Imaging.ImageFormat.Png);
+                            }
+                            cmdCreateTicket.Parameters.AddWithValue("@imgLink", filepath);
+                        }
                         cmdCreateTicket.Parameters.AddWithValue("@type", type);
                         cmdCreateTicket.Parameters.AddWithValue("@description", description);
                         cmdCreateTicket.Parameters.AddWithValue("@active", active);
-                        cmdCreateTicket.Parameters.AddWithValue("@imgLink", imgLink);
                         cmdCreateTicket.Parameters.AddWithValue("@latitude", latitude);
                         cmdCreateTicket.Parameters.AddWithValue("@longitude", longitude);
                         cmdCreateTicket.Parameters.AddWithValue("@title", title);
-                        cmdCreateTicket.Parameters.AddWithValue("@date", date);
-                        cmdCreateTicket.Parameters.AddWithValue("@username", GetAccountUsername(sqlConn, RequestAccountId));
+                        cmdCreateTicket.Parameters.AddWithValue("@date", dateOpen);
+                        cmdCreateTicket.Parameters.AddWithValue("@username", username);
                         cmdCreateTicket.Parameters.AddWithValue("@notes", notes);
-                        cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, description));
+                        cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, type));
                         cmdCreateTicket.Parameters.AddWithValue("@dateClosed", dateClosed);
-                        
+
                         int result = cmdCreateTicket.ExecuteNonQuery();
 
                         if (result != 1)

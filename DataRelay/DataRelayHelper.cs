@@ -168,13 +168,13 @@ namespace DataRelay
         /// <returns></returns>
         public string getReportColor(SqlConnection sqlConn, string report_type)
         {
-            string color = "Black";
+            string color = null;
 
-            string reportColorLook = "SELECT TOP 1 [color] FROM [TicketType] where [description]=@description";
+            string reportColorLook = "SELECT color From TicketType where description=@description";
 
             using (SqlCommand cmdColorLook = new SqlCommand(reportColorLook, sqlConn))
             {
-                cmdColorLook.Parameters.AddWithValue("description", report_type);
+                cmdColorLook.Parameters.AddWithValue("@description", report_type);
 
                 using (SqlDataReader reader = cmdColorLook.ExecuteReader())
                 {
@@ -189,9 +189,9 @@ namespace DataRelay
                     }
                 }
 
-                return color;
+                
             }
-
+            return color;
         }
 
         /// <summary>

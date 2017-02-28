@@ -3,15 +3,15 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using Owin;
 
-[assembly: OwinStartup(typeof(DataRelay.Startup1))]
+[assembly: OwinStartup(typeof(DataRelay.Startup))]
 
 namespace DataRelay
 {
-    public class Startup1
+    public partial class Startup
     {
         public void Configuration(IAppBuilder app)
         {
-           
+            ConfigureAuth(app);
         }
     }
 }
