@@ -98,21 +98,21 @@ namespace DataRelay
             BodyStyle = WebMessageBodyStyle.Bare)]
         Activity[] GetActivitiesForUser();
 
-       /// <summary>
-       /// 
-       /// </summary>
-       /// <param name="id">ticket id number</param>
-       /// <param name="type">type description of ticket. Ex: Water</param>
-       /// <param name="description">description for what or where problem is</param>
-       /// <param name="active">fixed or not</param>
-       /// <param name="imgLink">file location</param>
-       /// <param name="gps">gps coordinates for problem</param>
-       /// <param name="title">name for the problem</param>
-       /// <param name="date">date ticket was submitted</param>
-       /// <param name="username">submitted by username</param>
-       /// <param name="notes">additional notes about problem. Ex: fixed by someone</param>
-       /// <param name="color">color associated with ticket type</param>
-       /// <param name="dateClosed">date the ticket was closed</param>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id">ticket id number</param>
+        /// <param name="type">type description of ticket. Ex: Water</param>
+        /// <param name="description">description for what or where problem is</param>
+        /// <param name="active">fixed or not</param>
+        /// <param name="imgLink">file location</param>
+        /// <param name="gps">gps coordinates for problem</param>
+        /// <param name="title">name for the problem</param>
+        /// <param name="date">date ticket was submitted</param>
+        /// <param name="username">submitted by username</param>
+        /// <param name="notes">additional notes about problem. Ex: fixed by someone</param>
+        /// <param name="color">color associated with ticket type</param>
+        /// <param name="dateClosed">date the ticket was closed</param>
         [OperationContract]
         [WebInvoke(Method = "POST",
             UriTemplate = "trails/api/1/Ticket/Create",
@@ -145,7 +145,7 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
 
-        Ticket[]  GetTickets();
+        Ticket[] GetTickets();
 
         /// <summary>
         ///     Gets the total statistics for the account. Must be logged in. Broken up into 4: overall, biking, running, and
@@ -183,13 +183,40 @@ namespace DataRelay
             BodyStyle = WebMessageBodyStyle.Bare)]
         Path[] GetPath();
 
-        //delte after testing
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Retrieve/Image?id={id}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string getImageLink(int id);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Retrieve/Gps?id={id}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string getGPS(int id);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Retrieve/Note?id={id}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string getNote(int id);
+
         [OperationContract]
         [WebInvoke(Method = "POST",
-            UriTemplate = "trails/api/1/iOSTest",
+            UriTemplate = "trails/api/1/Retrieve/Note",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        void iOSTest(string problem);
+        void setNotes(int id, string note);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Retrieve/Title?id={id}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string getTicketTitle(int id);
     }
 }

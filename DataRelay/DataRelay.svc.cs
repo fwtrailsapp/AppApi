@@ -361,7 +361,7 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    DateTime dateOpen = DateTime.ParseExact(date, "yyyy-MM-dd'T'hh:mm:ss", null);
+                    DateTime dateOpen = DateTime.ParseExact(date, "yyyy-MM-dd'T'HH:mm:ss", null);
 
                     string createTicketQuery = "INSERT INTO Ticket (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
                         +" @longitude, @title, @date, @username, @notes, @color, @dateClosed)";
@@ -369,18 +369,18 @@ namespace DataRelay
                     
                     using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
                     {
-                        if (imgLink == null)
+                        if (imgLink == "")
                             cmdCreateTicket.Parameters.AddWithValue("@imgLink", DBNull.Value);
                         else
                         {
                             byte[] bytes = Convert.FromBase64String(imgLink);
-                            string filepath = "C:/images/img_" + title.Substring(0, 5) +"_"+ date +".png";
+                            string filepath = "C:\\images\\img_" + latitude.ToString() + longitude.ToString() +".jpg";
                             Image image;
 
                             using (MemoryStream ms = new MemoryStream(bytes))
                             {
                                 image = Image.FromStream(ms);
-                                image.Save(filepath, System.Drawing.Imaging.ImageFormat.Png);
+                                image.Save(filepath, System.Drawing.Imaging.ImageFormat.Jpeg);
                             }
                             cmdCreateTicket.Parameters.AddWithValue("@imgLink", filepath);
                         }
@@ -424,12 +424,12 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string closeQuery = "Update Ticket Set active = 0 Where id=@id";
+                    string closeQuery = "Update Ticket Set active = 0, dateClosed = @dateClosed Where id=@id";
 
                     using (SqlCommand cmdClose = new SqlCommand(closeQuery, sqlConn))
                     {
                         cmdClose.Parameters.AddWithValue("@id", id);
-
+                        cmdClose.Parameters.AddWithValue("@dateClosed", DateTime.Now);
                         cmdClose.ExecuteNonQuery();
                     }
                 }
@@ -798,8 +798,110 @@ namespace DataRelay
             return tickets.ToArray();
         }
 
-        //Delete after testing
-        public void iOSTest(string problem)
+        public string getImageLink(int id)
+        {
+            string imageLink = "";
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getImageLinkQuery = "Select imgLink from Ticket Where id=@id";
+
+                    using (SqlCommand cmdGetImage = new SqlCommand(getImageLinkQuery, sqlConn))
+                    {
+                        cmdGetImage.Parameters.AddWithValue("@id", id);
+
+                        using (SqlDataReader reader = cmdGetImage.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+
+                                imageLink = reader.GetString(reader.GetOrdinal("ImgLink"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't get image link.");
+            }
+
+            return imageLink;
+        }
+
+        public string getGPS(int id)
+        {
+            string gps = "";
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getGPSQuery = "Select latitude, longitude From Ticket Where id=@id";
+
+                    using (SqlCommand cmdGetGPS = new SqlCommand(getGPSQuery, sqlConn))
+                    {
+                        cmdGetGPS.Parameters.AddWithValue("@id", id);
+
+                        using (SqlDataReader reader = cmdGetGPS.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+
+                                gps = reader.GetDouble(reader.GetOrdinal("Latitude")).ToString() + ", " + reader.GetDouble(reader.GetOrdinal("Longitude")).ToString();
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve gps coordinates.");
+            }
+            return gps;
+        }
+
+        public string getNote(int id)
+        {
+            string notes = "";
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getNoteQuery = "Select Notes From Ticket Where id=@id";
+
+                    using (SqlCommand cmdGetNotes = new SqlCommand(getNoteQuery, sqlConn))
+                    {
+                        cmdGetNotes.Parameters.AddWithValue("@id", id);
+
+                        using (SqlDataReader reader = cmdGetNotes.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+
+                                notes = reader.GetString(reader.GetOrdinal("Notes"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve ticket notes.");
+            }
+            return notes;
+        }
+
+        public void setNotes(int id, string notes)
         {
             try
             {
@@ -807,24 +909,63 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string testQuery = "Insert into iOSTest (field) Values (@problem)";
+                    string setNotesQuery = "Update Ticket Set Notes=@notes Where id=@id";
 
-                    using (SqlCommand cmdTest = new SqlCommand(testQuery, sqlConn))
+                    using (SqlCommand cmdSetNotes = new SqlCommand(setNotesQuery, sqlConn))
                     {
-                       
-                        if (problem != null)
-                        {
-                            cmdTest.Parameters.AddWithValue("@problem", problem);
-                        }
-                        cmdTest.ExecuteNonQuery();
-                    }
+                        cmdSetNotes.Parameters.AddWithValue("@id", id);
+                        cmdSetNotes.Parameters.AddWithValue("@notes", notes);
 
+                        int result = cmdSetNotes.ExecuteNonQuery();
+
+                        if (result != 1)
+                        {
+                            _log.WriteTraceLine(this, $"Notes '{notes}' was not set!");
+                            throw new WebFaultException<string>("Notes couldn't be set.",
+                                HttpStatusCode.InternalServerError);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                GenericErrorHandler(ex, "Couldn't get account info.");
+                GenericErrorHandler(ex, "Couldn't set notes for ticket.");
             }
         }
+
+        public string getTicketTitle(int id)
+        {
+            string title = "";
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getTitleQuery = "Select title From Ticket Where id=@id";
+
+                    using (SqlCommand cmdGetTitle = new SqlCommand(getTitleQuery, sqlConn))
+                    {
+                        cmdGetTitle.Parameters.AddWithValue("@id", id);
+
+                        using (SqlDataReader reader = cmdGetTitle.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+
+                                title = reader.GetString(reader.GetOrdinal("Title"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve gps coordinates.");
+            }
+            return title;
+        }
+
     }
 }
