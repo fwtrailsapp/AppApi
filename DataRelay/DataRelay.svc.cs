@@ -374,7 +374,7 @@ namespace DataRelay
                         else
                         {
                             byte[] bytes = Convert.FromBase64String(imgLink);
-                            string filepath = "C:\\images\\img_" + latitude.ToString() + longitude.ToString() +".jpg";
+                            string filepath = "C:\\web-application\\img_" + latitude.ToString() + longitude.ToString() +".jpg";
                             Image image;
 
                             using (MemoryStream ms = new MemoryStream(bytes))
@@ -608,6 +608,167 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Couldn't get total stats.");
                 return null;
             }
+        }
+
+        public int GetAccountsCount()
+        {
+            int count = 0;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    string getNumberAccountsQuery = "Select Count(*) From Account";
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberAccountsQuery, sqlConn))
+                    {
+                        count = (int)cmdGetCount.ExecuteScalar();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve total number of accounts.");
+            }
+            return count;
+        }
+
+        public string GetActivityStats()
+        {
+            string activityStats = "";
+            int totalActivities, totalWalk, totalBike, totalRun;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    string getNumberActivitiesQuery = "Select Count(*) From Activity";
+                    string getNumberBikeQuery = "Select Count(*) From Activity Where exerciseType = 0"; 
+                    string getNumberRunQuery = "Select Count(*) From Activity Where exerciseType = 1";
+                    string getNumberWalkQuery = "Select Count(*) From Activity Where exerciseType = 2";
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberActivitiesQuery, sqlConn))
+                    {
+                        totalActivities = (int)cmdGetCount.ExecuteScalar();
+                        activityStats = "Total Activities = " + totalActivities.ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberBikeQuery, sqlConn))
+                    {
+                        totalBike = (int)cmdGetCount.ExecuteScalar();
+                        activityStats += "Total Biking Activities = " + totalBike.ToString() + "\\t" + Math.Round((((double)totalBike / totalActivities) * 100) , 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberRunQuery, sqlConn))
+                    {
+                        totalRun = (int)cmdGetCount.ExecuteScalar();
+                        activityStats += "Total Running Activities = " + totalRun.ToString() + "\\t" + Math.Round((((double)totalRun / totalActivities) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberWalkQuery, sqlConn))
+                    {
+                        totalWalk = (int)cmdGetCount.ExecuteScalar();
+                        activityStats += "Total Walking Activities = " + totalActivities.ToString() + "\\t" + Math.Round((((double)totalWalk / totalActivities) * 100), 2).ToString() + "\\n";
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve total activity stats.");
+            }
+            return activityStats;
+        }
+
+        public string GetTicketStats()
+        {
+            string ticketStats = "";
+            int totalTickets, totalTree, totalGlass, totalVandal, totalBrush, totalWater, totalLitter, totalTrash, totalPothole, totalOther;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    string getNumberTicketsQuery = "Select Count(*) From Ticket";
+                    string getNumberTreeQuery = "Select Count(*) From Ticket Where Type = \'Tree/Branch\'";
+                    string getNumberGlassQuery = "Select Count(*) From Ticket Where Type = \'Broken Glass\'";
+                    string getNumberVandalQuery = "Select Count(*) From Ticket Where Type = \'Vandalism\'";
+                    string getNumberBrushQuery = "Select Count(*) From Ticket Where Type = \'Overgrown Brush\'";
+                    string getNumberWaterQuery = "Select Count(*) From Ticket Where Type = \'High Water\'";
+                    string getNumberLitterQuery = "Select Count(*) From Ticket Where Type = \'Litter\'";
+                    string getNumberTrashQuery = "Select Count(*) From Ticket Where Type = \'Full Trash\'";
+                    string getNumberPotholeQuery = "Select Count(*) From Ticket Where Type = \'Pothole\'";
+                    string getNumberOtherQuery = "Select Count(*) From Ticket Where Type = \'Other\'";
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberTicketsQuery, sqlConn))
+                    {
+                        totalTickets = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats = "Total Tickets = " + totalTickets.ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberTreeQuery, sqlConn))
+                    {
+                        totalTree = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Tree/Branch Tickets = " + totalTree.ToString() + "\\t" + Math.Round((((double)totalTree / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberGlassQuery, sqlConn))
+                    {
+                        totalGlass = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Broken Glass Tickets = " + totalGlass.ToString() + "\\t" + Math.Round((((double)totalGlass / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberVandalQuery, sqlConn))
+                    {
+                        totalVandal = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Vandalism Tickets = " + totalVandal.ToString() + "\\t" + Math.Round((((double)totalVandal / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberBrushQuery, sqlConn))
+                    {
+                        totalBrush = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Overgrown Brush Tickets = " + totalBrush.ToString() + "\\t" + Math.Round((((double)totalBrush / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberWaterQuery, sqlConn))
+                    {
+                        totalWater = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total High Water Tickets = " + totalWater.ToString() + "\\t" + Math.Round((((double)totalWater / totalTickets) * 100 ), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberLitterQuery, sqlConn))
+                    {
+                        totalLitter = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Litter Tickets = " + totalLitter.ToString() + "\\t" + Math.Round((((double)totalLitter / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberTrashQuery, sqlConn))
+                    {
+                        totalTrash = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Full Trash Tickets = " + totalTrash.ToString() + "\\t" + Math.Round((((double)totalTrash / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberPotholeQuery, sqlConn))
+                    {
+                        totalPothole = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Pothole Tickets = " + totalPothole.ToString() + "\\t" + Math.Round((((double)totalPothole / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getNumberOtherQuery, sqlConn))
+                    {
+                        totalOther = (int)cmdGetCount.ExecuteScalar();
+                        ticketStats += "Total Other Tickets = " + totalOther.ToString() + "\\t" + Math.Round((((double)totalOther / totalTickets) * 100), 2).ToString() + "\\n";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve ticket stats.");
+            }
+            return ticketStats;
         }
 
         public Path[] GetPath()

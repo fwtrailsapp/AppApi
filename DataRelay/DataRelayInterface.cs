@@ -172,6 +172,27 @@ namespace DataRelay
             BodyStyle = WebMessageBodyStyle.Bare)]
         AllStat[] GetAllStats();
 
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Accounts",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int GetAccountsCount();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Activities",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string GetActivityStats();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Tickets",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        string GetTicketStats();
+
         /// <summary>
         ///     Gets all the paths across every activity across every user. HTTP 500 if some error.
         /// </summary>
