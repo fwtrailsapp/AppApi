@@ -366,15 +366,23 @@ namespace DataRelay
                     string createTicketQuery = "INSERT INTO Ticket (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
                         +" @longitude, @title, @date, @username, @notes, @color, @dateClosed)";
 
-                    
+                    string imageCounterQuery = "Select counter from ImageCounter";
+                    string updateImageCounterQuery = "Update ImageCounter Set counter=@counter";
+                    int counter;
+
+                    using (SqlCommand cmdGetCounter = new SqlCommand(imageCounterQuery, sqlConn))
+                    {
+                        counter = (int)cmdGetCounter.ExecuteScalar();
+                    }
+
                     using (SqlCommand cmdCreateTicket = new SqlCommand(createTicketQuery, sqlConn))
                     {
                         if (imgLink == "")
-                            cmdCreateTicket.Parameters.AddWithValue("@imgLink", DBNull.Value);
+                            cmdCreateTicket.Parameters.AddWithValue("@imgLink", "");
                         else
                         {
                             byte[] bytes = Convert.FromBase64String(imgLink);
-                            string filepath = "C:\\web-application\\img_" + latitude.ToString() + longitude.ToString() +".jpg";
+                            string filepath = "C:\\web-application\\images\\img_" + (counter + 1).ToString() + ".jpg";
                             Image image;
 
                             using (MemoryStream ms = new MemoryStream(bytes))
@@ -406,6 +414,13 @@ namespace DataRelay
                         }
 
                         _log.WriteTraceLine(this, $"Ticket '{title}' created successfully!");
+                    }
+
+                    using (SqlCommand cmdGetCounter = new SqlCommand(updateImageCounterQuery, sqlConn))
+                    {
+                        counter += 1;
+                        cmdGetCounter.Parameters.AddWithValue("@counter", counter);
+                        cmdGetCounter.ExecuteNonQuery();
                     }
                 }
             }
@@ -634,10 +649,9 @@ namespace DataRelay
             return count;
         }
 
-        public string GetActivityStats()
+        public int[] GetActivityStats()
         {
-            string activityStats = "";
-            int totalActivities, totalWalk, totalBike, totalRun;
+            int[] activityStats = new int[4];
 
             try
             {
@@ -651,26 +665,22 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberActivitiesQuery, sqlConn))
                     {
-                        totalActivities = (int)cmdGetCount.ExecuteScalar();
-                        activityStats = "Total Activities = " + totalActivities.ToString() + "\\n";
+                        activityStats[0] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberBikeQuery, sqlConn))
                     {
-                        totalBike = (int)cmdGetCount.ExecuteScalar();
-                        activityStats += "Total Biking Activities = " + totalBike.ToString() + "\\t" + Math.Round((((double)totalBike / totalActivities) * 100) , 2).ToString() + "\\n";
+                        activityStats[1] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberRunQuery, sqlConn))
                     {
-                        totalRun = (int)cmdGetCount.ExecuteScalar();
-                        activityStats += "Total Running Activities = " + totalRun.ToString() + "\\t" + Math.Round((((double)totalRun / totalActivities) * 100), 2).ToString() + "\\n";
+                        activityStats[2] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberWalkQuery, sqlConn))
                     {
-                        totalWalk = (int)cmdGetCount.ExecuteScalar();
-                        activityStats += "Total Walking Activities = " + totalActivities.ToString() + "\\t" + Math.Round((((double)totalWalk / totalActivities) * 100), 2).ToString() + "\\n";
+                        activityStats[3] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                 }
@@ -682,10 +692,9 @@ namespace DataRelay
             return activityStats;
         }
 
-        public string GetTicketStats()
+        public int[] GetTicketStats()
         {
-            string ticketStats = "";
-            int totalTickets, totalTree, totalGlass, totalVandal, totalBrush, totalWater, totalLitter, totalTrash, totalPothole, totalOther;
+            int[] ticketStats = new int[10];
 
             try
             {
@@ -705,62 +714,52 @@ namespace DataRelay
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberTicketsQuery, sqlConn))
                     {
-                        totalTickets = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats = "Total Tickets = " + totalTickets.ToString() + "\\n";
+                        ticketStats[0] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberTreeQuery, sqlConn))
                     {
-                        totalTree = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Tree/Branch Tickets = " + totalTree.ToString() + "\\t" + Math.Round((((double)totalTree / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[1] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberGlassQuery, sqlConn))
                     {
-                        totalGlass = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Broken Glass Tickets = " + totalGlass.ToString() + "\\t" + Math.Round((((double)totalGlass / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[2] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberVandalQuery, sqlConn))
                     {
-                        totalVandal = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Vandalism Tickets = " + totalVandal.ToString() + "\\t" + Math.Round((((double)totalVandal / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[3] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberBrushQuery, sqlConn))
                     {
-                        totalBrush = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Overgrown Brush Tickets = " + totalBrush.ToString() + "\\t" + Math.Round((((double)totalBrush / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[4] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberWaterQuery, sqlConn))
                     {
-                        totalWater = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total High Water Tickets = " + totalWater.ToString() + "\\t" + Math.Round((((double)totalWater / totalTickets) * 100 ), 2).ToString() + "\\n";
+                        ticketStats[5] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberLitterQuery, sqlConn))
                     {
-                        totalLitter = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Litter Tickets = " + totalLitter.ToString() + "\\t" + Math.Round((((double)totalLitter / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[6] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberTrashQuery, sqlConn))
                     {
-                        totalTrash = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Full Trash Tickets = " + totalTrash.ToString() + "\\t" + Math.Round((((double)totalTrash / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[7] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberPotholeQuery, sqlConn))
                     {
-                        totalPothole = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Pothole Tickets = " + totalPothole.ToString() + "\\t" + Math.Round((((double)totalPothole / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[8] = (int)cmdGetCount.ExecuteScalar();
                     }
 
                     using (SqlCommand cmdGetCount = new SqlCommand(getNumberOtherQuery, sqlConn))
                     {
-                        totalOther = (int)cmdGetCount.ExecuteScalar();
-                        ticketStats += "Total Other Tickets = " + totalOther.ToString() + "\\t" + Math.Round((((double)totalOther / totalTickets) * 100), 2).ToString() + "\\n";
+                        ticketStats[9] = (int)cmdGetCount.ExecuteScalar();
                     }
                 }
             }
@@ -907,10 +906,9 @@ namespace DataRelay
             return allStat.ToArray();
         }
 
-        public Ticket[] GetTickets()
+        public Ticket[] GetActiveTickets()
         {
             _log.WriteTraceLine(this, $"Retreiving all tickets");
-            RequireLoginToken();
 
             List<Ticket> tickets = null;
 
@@ -922,29 +920,37 @@ namespace DataRelay
 
                     tickets = new List<Ticket>();
 
-                    string getAllTickets = "SELECT * From Tickets Order By date DESC";
+                    string getActiveTickets = "SELECT * From Ticket WHERE active = 1 ORDER BY date ASC";
 
-                    using (SqlCommand cmdGetAllActivity = new SqlCommand(getAllTickets, sqlConn))
+                    using (SqlCommand cmdGetActiveTickets = new SqlCommand(getActiveTickets, sqlConn))
                     {
-                        using (SqlDataReader reader = cmdGetAllActivity.ExecuteReader())
+                        using (SqlDataReader reader = cmdGetActiveTickets.ExecuteReader())
                         {
                             if (reader.HasRows)
                             {
                                 while (reader.Read())
                                 {
-                                    var a = new Ticket
-                                    {
-                                        title = reader.GetString(reader.GetOrdinal("title")),
-                                        description = reader.GetString(reader.GetOrdinal("description")),
-                                        latitude = reader.GetDouble(reader.GetOrdinal("latitude")),
-                                        longitude = reader.GetDouble(reader.GetOrdinal("longitude")),
-                                        imgLink = reader.GetString(reader.GetOrdinal("imageLink")),
-                                        date = reader.GetString(reader.GetOrdinal("date")),
-                                        type = reader.GetString(reader.GetOrdinal("type")),
-                                        color = reader.GetString(reader.GetOrdinal("color")),
-                                    };
+                                    Ticket t = new Ticket();
 
-                                    tickets.Add(a);
+                                    if(reader.GetString(reader.GetOrdinal("imgLink")) == null)
+                                    {
+                                        t.imgLink = "";
+                                    }
+                                    t.id = reader.GetInt32(reader.GetOrdinal("id"));
+                                    t.type = reader.GetString(reader.GetOrdinal("type"));
+                                    t.description = reader.GetString(reader.GetOrdinal("description"));
+                                    t.active = reader.GetInt32(reader.GetOrdinal("active"));
+                                    t.imgLink = reader.GetString(reader.GetOrdinal("imgLink"));
+                                    t.latitude = reader.GetDouble(reader.GetOrdinal("latitude"));
+                                    t.longitude = reader.GetDouble(reader.GetOrdinal("longitude"));
+                                    t.title = reader.GetString(reader.GetOrdinal("title"));
+                                    t.date = reader.GetDateTime(reader.GetOrdinal("date")).ToString();
+                                    t.username = reader.GetString(reader.GetOrdinal("username"));
+                                    t.notes = reader.GetString(reader.GetOrdinal("notes"));
+                                    t.color = reader.GetString(reader.GetOrdinal("typeColor"));
+                                    t.dateClosed = reader.GetDateTime(reader.GetOrdinal("dateClosed")).ToString();
+                                    
+                                    tickets.Add(t);
                                 }
                             }
                         }
@@ -953,7 +959,67 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                GenericErrorHandler(ex, "Activities could not be retrieved.");
+                GenericErrorHandler(ex, "Tickets could not be retrieved.");
+            }
+
+            return tickets.ToArray();
+        }
+
+        public Ticket[] GetClosedTickets()
+        {
+            _log.WriteTraceLine(this, $"Retreiving all tickets");
+
+            List<Ticket> tickets = null;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    tickets = new List<Ticket>();
+
+                    string getClosedTickets = "SELECT * From Ticket WHERE active = 0 ORDER BY date ASC";
+
+                    using (SqlCommand cmdGetClosedTicket = new SqlCommand(getClosedTickets, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetClosedTicket.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    Ticket t = new Ticket();
+
+                                    if (reader.GetString(reader.GetOrdinal("imgLink")) == null)
+                                    {
+                                        t.imgLink = "";
+                                    }
+
+                                    t.type = reader.GetString(reader.GetOrdinal("type"));
+                                    t.description = reader.GetString(reader.GetOrdinal("description"));
+                                    t.active = reader.GetInt32(reader.GetOrdinal("active"));
+                                    t.imgLink = reader.GetString(reader.GetOrdinal("imgLink"));
+                                    t.latitude = reader.GetDouble(reader.GetOrdinal("latitude"));
+                                    t.longitude = reader.GetDouble(reader.GetOrdinal("longitude"));
+                                    t.title = reader.GetString(reader.GetOrdinal("title"));
+                                    t.date = reader.GetDateTime(reader.GetOrdinal("date")).ToString();
+                                    t.notes = reader.GetString(reader.GetOrdinal("notes"));
+                                    t.color = reader.GetString(reader.GetOrdinal("typeColor"));
+                                    t.dateClosed = reader.GetDateTime(reader.GetOrdinal("dateClosed")).ToString();
+
+
+
+                                    tickets.Add(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Tickets could not be retrieved.");
             }
 
             return tickets.ToArray();
@@ -988,7 +1054,7 @@ namespace DataRelay
             }
             catch (Exception ex)
             {
-                GenericErrorHandler(ex, "Couldn't get image link.");
+                GenericErrorHandler(ex, "");
             }
 
             return imageLink;
@@ -1061,7 +1127,7 @@ namespace DataRelay
             }
             return notes;
         }
-
+        
         public void setNotes(int id, string notes)
         {
             try
@@ -1126,6 +1192,183 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Couldn't retrieve gps coordinates.");
             }
             return title;
+        }
+
+        public Ticket[] sortByMostRecent()
+        {
+            _log.WriteTraceLine(this, $"Retreiving all tickets");
+
+            List<Ticket> tickets = null;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    tickets = new List<Ticket>();
+
+                    string getActiveTickets = "SELECT * From Ticket WHERE active = 1 ORDER BY date DESC";
+
+                    using (SqlCommand cmdGetActiveTickets = new SqlCommand(getActiveTickets, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetActiveTickets.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    Ticket t = new Ticket();
+
+                                    if (reader.GetString(reader.GetOrdinal("imgLink")) == null)
+                                    {
+                                        t.imgLink = "";
+                                    }
+                                    t.id = reader.GetInt32(reader.GetOrdinal("id"));
+                                    t.type = reader.GetString(reader.GetOrdinal("type"));
+                                    t.description = reader.GetString(reader.GetOrdinal("description"));
+                                    t.active = reader.GetInt32(reader.GetOrdinal("active"));
+                                    t.imgLink = reader.GetString(reader.GetOrdinal("imgLink"));
+                                    t.latitude = reader.GetDouble(reader.GetOrdinal("latitude"));
+                                    t.longitude = reader.GetDouble(reader.GetOrdinal("longitude"));
+                                    t.title = reader.GetString(reader.GetOrdinal("title"));
+                                    t.date = reader.GetDateTime(reader.GetOrdinal("date")).ToString();
+                                    t.username = reader.GetString(reader.GetOrdinal("username"));
+                                    t.notes = reader.GetString(reader.GetOrdinal("notes"));
+                                    t.color = reader.GetString(reader.GetOrdinal("typeColor"));
+                                    t.dateClosed = reader.GetDateTime(reader.GetOrdinal("dateClosed")).ToString();
+
+                                    tickets.Add(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Tickets could not be retrieved.");
+            }
+
+            return tickets.ToArray();
+        }
+
+        public Ticket[] sortByLeastRecent()
+        {
+            _log.WriteTraceLine(this, $"Retreiving all tickets");
+
+            List<Ticket> tickets = null;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    tickets = new List<Ticket>();
+
+                    string getActiveTickets = "SELECT * From Ticket WHERE active = 1 ORDER BY date ASC";
+
+                    using (SqlCommand cmdGetActiveTickets = new SqlCommand(getActiveTickets, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetActiveTickets.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    Ticket t = new Ticket();
+
+                                    if (reader.GetString(reader.GetOrdinal("imgLink")) == null)
+                                    {
+                                        t.imgLink = "";
+                                    }
+                                    t.id = reader.GetInt32(reader.GetOrdinal("id"));
+                                    t.type = reader.GetString(reader.GetOrdinal("type"));
+                                    t.description = reader.GetString(reader.GetOrdinal("description"));
+                                    t.active = reader.GetInt32(reader.GetOrdinal("active"));
+                                    t.imgLink = reader.GetString(reader.GetOrdinal("imgLink"));
+                                    t.latitude = reader.GetDouble(reader.GetOrdinal("latitude"));
+                                    t.longitude = reader.GetDouble(reader.GetOrdinal("longitude"));
+                                    t.title = reader.GetString(reader.GetOrdinal("title"));
+                                    t.date = reader.GetDateTime(reader.GetOrdinal("date")).ToString();
+                                    t.username = reader.GetString(reader.GetOrdinal("username"));
+                                    t.notes = reader.GetString(reader.GetOrdinal("notes"));
+                                    t.color = reader.GetString(reader.GetOrdinal("typeColor"));
+                                    t.dateClosed = reader.GetDateTime(reader.GetOrdinal("dateClosed")).ToString();
+
+                                    tickets.Add(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Tickets could not be retrieved.");
+            }
+
+            return tickets.ToArray();
+        }
+
+        public Ticket[] sortByTicketType()
+        {
+            _log.WriteTraceLine(this, $"Retreiving all tickets");
+
+            List<Ticket> tickets = null;
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    tickets = new List<Ticket>();
+
+                    string getActiveTickets = "SELECT * From Ticket WHERE active = 1 ORDER BY type ASC";
+
+                    using (SqlCommand cmdGetActiveTickets = new SqlCommand(getActiveTickets, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetActiveTickets.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    Ticket t = new Ticket();
+
+                                    if (reader.GetString(reader.GetOrdinal("imgLink")) == null)
+                                    {
+                                        t.imgLink = "";
+                                    }
+                                    t.id = reader.GetInt32(reader.GetOrdinal("id"));
+                                    t.type = reader.GetString(reader.GetOrdinal("type"));
+                                    t.description = reader.GetString(reader.GetOrdinal("description"));
+                                    t.active = reader.GetInt32(reader.GetOrdinal("active"));
+                                    t.imgLink = reader.GetString(reader.GetOrdinal("imgLink"));
+                                    t.latitude = reader.GetDouble(reader.GetOrdinal("latitude"));
+                                    t.longitude = reader.GetDouble(reader.GetOrdinal("longitude"));
+                                    t.title = reader.GetString(reader.GetOrdinal("title"));
+                                    t.date = reader.GetDateTime(reader.GetOrdinal("date")).ToString();
+                                    t.username = reader.GetString(reader.GetOrdinal("username"));
+                                    t.notes = reader.GetString(reader.GetOrdinal("notes"));
+                                    t.color = reader.GetString(reader.GetOrdinal("typeColor"));
+                                    t.dateClosed = reader.GetDateTime(reader.GetOrdinal("dateClosed")).ToString();
+
+                                    tickets.Add(t);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Tickets could not be retrieved.");
+            }
+
+            return tickets.ToArray();
         }
 
     }

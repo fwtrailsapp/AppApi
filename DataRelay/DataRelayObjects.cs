@@ -74,6 +74,8 @@ namespace DataRelay
     public class Ticket
     {
         [DataMember]
+        public int id { get; set; }
+        [DataMember]
         public string type { get; set; }
         [DataMember]
         public string description { get; set; }
@@ -89,6 +91,8 @@ namespace DataRelay
         public string title { get; set; }
         [DataMember]
         public string date { get; set; }
+        [DataMember]
+        public string username { get; set; }
         [DataMember]
         public string notes { get; set; }
         [DataMember]

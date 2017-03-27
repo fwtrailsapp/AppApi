@@ -133,19 +133,25 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-
         void CloseTicket(int id);
+
         /// <summary>
         /// 
         /// </summary>
         /// <returns>All the tickets in datebase</returns>
         [OperationContract]
         [WebInvoke(Method = "GET",
-            UriTemplate = "trails/api/1/Ticket",
+            UriTemplate = "trails/api/1/Ticket/Active",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
+        Ticket[] GetActiveTickets();
 
-        Ticket[] GetTickets();
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+           UriTemplate = "trails/api/1/Ticket/Closed",
+           ResponseFormat = WebMessageFormat.Json,
+           BodyStyle = WebMessageBodyStyle.Bare)]
+        Ticket[] GetClosedTickets();
 
         /// <summary>
         ///     Gets the total statistics for the account. Must be logged in. Broken up into 4: overall, biking, running, and
@@ -184,14 +190,14 @@ namespace DataRelay
             UriTemplate = "trails/api/1/Statistics/Activities",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
-        string GetActivityStats();
+        int[] GetActivityStats();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Statistics/Tickets",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
-        string GetTicketStats();
+        int[] GetTicketStats();
 
         /// <summary>
         ///     Gets all the paths across every activity across every user. HTTP 500 if some error.
@@ -227,7 +233,7 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "POST",
-            UriTemplate = "trails/api/1/Retrieve/Note",
+            UriTemplate = "trails/api/1/Set/Note",
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
@@ -239,5 +245,27 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
         string getTicketTitle(int id);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Sort/MostRecent",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        Ticket[] sortByMostRecent();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Sort/LeastRecent",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        Ticket[] sortByLeastRecent();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Sort/Type",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        Ticket[] sortByTicketType();
+
     }
 }
