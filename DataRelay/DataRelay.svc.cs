@@ -649,6 +649,136 @@ namespace DataRelay
             return count;
         }
 
+        public int[] GetGenderCount()
+        {
+            int[] gender = new int[2];
+            int maleCount = 0, femaleCount = 0;
+            string selectGenderQuery = "Select sex from Account Where sex is not null";
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlCommand cmdGetCount = new SqlCommand(selectGenderQuery, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetCount.ExecuteReader())
+                        {
+                            if(reader.HasRows)
+                            {
+                                while(reader.Read())
+                                {
+                                    if(reader.GetString(reader.GetOrdinal("sex")).ToLower() == "male")
+                                    {
+                                        maleCount++;
+                                    }
+                                    else if(reader.GetString(reader.GetOrdinal("sex")).ToLower() == "female")
+                                    {
+                                        femaleCount++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                gender[0] = maleCount;
+                gender[1] = femaleCount;
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Could not count the account genders");
+            }
+            return gender;
+        }
+
+        public int[] GetAgeCount()
+        {
+            int[] age = new int[8];
+            string selectMaleQuery = "Select birthyear from Account where sex = 'male'";
+            string selectFemaleQuery = "Select birthyear from Account where sex = 'female'";
+            int male20 = 0, male30 = 0, male40 = 0, male50 = 0, female20 = 0, female30 = 0, female40 = 0, female50 = 0;
+            int currYear;
+            int.TryParse(DateTime.Now.ToString("yyyy"), out currYear);
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlCommand cmdGetMale = new SqlCommand(selectMaleQuery, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetMale.ExecuteReader())
+                        {
+                            if(reader.HasRows)
+                            {
+                                while(reader.Read())
+                                {
+                                    int year = reader.GetInt32(reader.GetOrdinal("birthyear"));
+                                    int a = currYear - year;
+
+                                    if (a >= 20 && a <= 29)
+                                    {
+                                        male20++;
+                                    }
+                                    else if (a >= 30 && a <= 39)
+                                    {
+                                        male30++;
+                                    }
+                                    else if (a >= 40 && a <= 49)
+                                    {
+                                        male40++;
+                                    }
+                                    else if (a >= 50)
+                                    {
+                                        male50++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    using (SqlCommand cmdGetFemale = new SqlCommand(selectFemaleQuery, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdGetFemale.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    int year = reader.GetInt32(reader.GetOrdinal("birthyear"));
+                                    int a = currYear - year;
+
+                                    if (a >= 20 && a <= 29)
+                                        female20++;
+                                    else if (a >= 30 && a <= 39)
+                                        female30++;
+                                    else if (a >= 40 && a <= 49)
+                                        female40++;
+                                    else if (a >= 50)
+                                        female50++;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                age[0] = male20;
+                age[1] = male30;
+                age[2] = male40;
+                age[3] = male50;
+                age[4] = female20;
+                age[5] = female30;
+                age[6] = female40;
+                age[7] = female50;
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't get the age brackets of account users");
+            }
+
+            return age;
+        }
+
         public int[] GetActivityStats()
         {
             int[] activityStats = new int[4];
@@ -768,6 +898,134 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Couldn't retrieve ticket stats.");
             }
             return ticketStats;
+        }
+
+        public int[] CompareTicketStats()
+        {
+            int[] stats = new int[18];
+
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    string getActiveTreeQuery = "Select Count(*) From Ticket Where Type = \'Tree/Branch\' AND active=1";
+                    string getActiveGlassQuery = "Select Count(*) From Ticket Where Type = \'Broken Glass\' AND active=1";
+                    string getActiveVandalQuery = "Select Count(*) From Ticket Where Type = \'Vandalism\' AND active=1";
+                    string getActiveBrushQuery = "Select Count(*) From Ticket Where Type = \'Overgrown Brush\' AND active=1";
+                    string getActiveWaterQuery = "Select Count(*) From Ticket Where Type = \'High Water\' AND active=1";
+                    string getAtiveLitterQuery = "Select Count(*) From Ticket Where Type = \'Litter\' AND active=1";
+                    string getActiveTrashQuery = "Select Count(*) From Ticket Where Type = \'Full Trash\' AND active=1";
+                    string getActivePotholeQuery = "Select Count(*) From Ticket Where Type = \'Pothole\' AND active=1";
+                    string getActiveOtherQuery = "Select Count(*) From Ticket Where Type = \'Other\' AND active=1";
+
+                    string getClosedTreeQuery = "Select Count(*) From Ticket Where Type = \'Tree/Branch\' AND active=0";
+                    string getClosedGlassQuery = "Select Count(*) From Ticket Where Type = \'Broken Glass\' AND active=0";
+                    string getClosedVandalQuery = "Select Count(*) From Ticket Where Type = \'Vandalism\' AND active=0";
+                    string getClosedBrushQuery = "Select Count(*) From Ticket Where Type = \'Overgrown Brush\' AND active=0";
+                    string getClosedWaterQuery = "Select Count(*) From Ticket Where Type = \'High Water\' AND active=0";
+                    string getClosedLitterQuery = "Select Count(*) From Ticket Where Type = \'Litter\' AND active=0";
+                    string getClosedTrashQuery = "Select Count(*) From Ticket Where Type = \'Full Trash\' AND active=0";
+                    string getClosedPotholeQuery = "Select Count(*) From Ticket Where Type = \'Pothole\' AND active=0";
+                    string getClosedOtherQuery = "Select Count(*) From Ticket Where Type = \'Other\' AND active=0";
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveTreeQuery, sqlConn))
+                    {
+                        stats[0] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveGlassQuery, sqlConn))
+                    {
+                        stats[1] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveVandalQuery, sqlConn))
+                    {
+                        stats[2] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveBrushQuery, sqlConn))
+                    {
+                        stats[3] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveWaterQuery, sqlConn))
+                    {
+                        stats[4] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getAtiveLitterQuery, sqlConn))
+                    {
+                        stats[5] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveTrashQuery, sqlConn))
+                    {
+                        stats[6] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActivePotholeQuery, sqlConn))
+                    {
+                        stats[7] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getActiveOtherQuery, sqlConn))
+                    {
+                        stats[8] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedTreeQuery, sqlConn))
+                    {
+                        stats[9] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedGlassQuery, sqlConn))
+                    {
+                        stats[10] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedVandalQuery, sqlConn))
+                    {
+                        stats[11] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedBrushQuery, sqlConn))
+                    {
+                        stats[12] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedWaterQuery, sqlConn))
+                    {
+                        stats[13] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedLitterQuery, sqlConn))
+                    {
+                        stats[14] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedTrashQuery, sqlConn))
+                    {
+                        stats[15] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedPotholeQuery, sqlConn))
+                    {
+                        stats[16] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                    using (SqlCommand cmdGetCount = new SqlCommand(getClosedOtherQuery, sqlConn))
+                    {
+                        stats[17] = (int)cmdGetCount.ExecuteScalar();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve ticket stats.");
+            }
+            return stats;
         }
 
         public Path[] GetPath()

@@ -187,6 +187,20 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Accounts/Gender",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int[] GetGenderCount();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Accounts/Age",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int[] GetAgeCount();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Statistics/Activities",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
@@ -198,6 +212,15 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
         int[] GetTicketStats();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Tickets/Compare",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int[] CompareTicketStats();
+
+        
 
         /// <summary>
         ///     Gets all the paths across every activity across every user. HTTP 500 if some error.
