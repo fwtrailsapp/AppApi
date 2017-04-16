@@ -42,16 +42,16 @@ namespace DataRelay
                     }
 
                     string createAcctQuery =
-                        "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height)";
+                        "INSERT INTO ACCOUNT (accountID, username, password, birthyear, weight, sex, height, createDate) VALUES (@accountID, @username, @password, @birthyear, @weight, @sex, @height, @createDate)";
 
                     string accountID = GenerateAccountGuid();
 
                     using (SqlCommand cmdCreateAcct = new SqlCommand(createAcctQuery, sqlConn))
                     {
                         cmdCreateAcct.Parameters.AddWithValue("@accountID", accountID);
-
                         cmdCreateAcct.Parameters.AddWithValue("@username", username);
                         cmdCreateAcct.Parameters.AddWithValue("@password", PasswordStorage.Hash(password));
+                        cmdCreateAcct.Parameters.AddWithValue("@createDate", DateTime.Now);
 
                         if (birthyear != null)
                             cmdCreateAcct.Parameters.AddWithValue("@birthyear", birthyear);
@@ -363,8 +363,8 @@ namespace DataRelay
 
                     DateTime dateOpen = DateTime.ParseExact(date, "yyyy-MM-dd'T'HH:mm:ss", null);
 
-                    string createTicketQuery = "INSERT INTO Ticket (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed) VALUES (@type, @description, @active, @imgLink, @latitude,"
-                        +" @longitude, @title, @date, @username, @notes, @color, @dateClosed)";
+                    string createTicketQuery = "INSERT INTO Ticket (Type, Description, Active, ImgLink, Latitude, Longitude, Title, Date, Username, Notes, TypeColor, DateClosed, Priority) VALUES (@type, @description, @active, @imgLink, @latitude,"
+                        +" @longitude, @title, @date, @username, @notes, @color, @dateClosed, @priority)";
 
                     string imageCounterQuery = "Select counter from ImageCounter";
                     string updateImageCounterQuery = "Update ImageCounter Set counter=@counter";
@@ -403,6 +403,7 @@ namespace DataRelay
                         cmdCreateTicket.Parameters.AddWithValue("@notes", notes);
                         cmdCreateTicket.Parameters.AddWithValue("@color", getReportColor(sqlConn, type));
                         cmdCreateTicket.Parameters.AddWithValue("@dateClosed", dateClosed);
+                        cmdCreateTicket.Parameters.AddWithValue("@priority", 0);
 
                         int result = cmdCreateTicket.ExecuteNonQuery();
 
@@ -694,11 +695,12 @@ namespace DataRelay
         public int[] GetAgeCount()
         {
             int[] age = new int[8];
-            string selectMaleQuery = "Select birthyear from Account where sex = 'male'";
-            string selectFemaleQuery = "Select birthyear from Account where sex = 'female'";
+            string selectMaleQuery = "Select birthyear from Account where sex = 'male' AND birthyear is not null";
+            string selectFemaleQuery = "Select birthyear from Account where sex = 'female' AND birthyear is not null";
             int male20 = 0, male30 = 0, male40 = 0, male50 = 0, female20 = 0, female30 = 0, female40 = 0, female50 = 0;
             int currYear;
             int.TryParse(DateTime.Now.ToString("yyyy"), out currYear);
+            
 
             try
             {
@@ -779,6 +781,90 @@ namespace DataRelay
             return age;
         }
 
+        public int[] GetMonthCount()
+        {
+            int[] months = new int[12];
+            DateTime date = DateTime.Now;
+
+            string dateQuery = "Select createDate from Account Where createDate is not NULL";
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+                    using (SqlCommand cmdMonth = new SqlCommand(dateQuery, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdMonth.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while(reader.Read())
+                                {
+                                    date = reader.GetDateTime(reader.GetOrdinal("createDate"));
+                                    
+
+                                    if (date.Month.ToString() == "1")
+                                    {
+                                        months[0] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "2")
+                                    {
+                                        months[1] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "3")
+                                    {
+                                        months[2] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "4")
+                                    {
+                                        months[3] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "5")
+                                    {
+                                        months[4] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "6")
+                                    {
+                                        months[5] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "7")
+                                    {
+                                        months[6] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "8")
+                                    {
+                                        months[7] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "9")
+                                    {
+                                        months[8] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "10")
+                                    {
+                                        months[9] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "11")
+                                    {
+                                        months[10] += 1;
+                                    }
+                                    else if (date.Month.ToString() == "12")
+                                    {
+                                        months[11] += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }  
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't get count of accounts created in each month");
+            }
+
+            return months;
+        }
+
         public int[] GetActivityStats()
         {
             int[] activityStats = new int[4];
@@ -820,6 +906,137 @@ namespace DataRelay
                 GenericErrorHandler(ex, "Couldn't retrieve total activity stats.");
             }
             return activityStats;
+        }
+
+        public int[] GetActivityTimeStats()
+        {
+            int[] times = new int[24];
+            DateTime startTime;
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string sqlQuery = "Select startTime from Activity";
+
+                    using (SqlCommand cmdSql = new SqlCommand(sqlQuery, sqlConn))
+                    {
+                        using (SqlDataReader reader = cmdSql.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                while(reader.Read())
+                                {
+                                    startTime = reader.GetDateTime(reader.GetOrdinal("startTime"));
+
+                                    if (startTime.Hour.ToString() == "0")
+                                    {
+                                        times[0] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "1")
+                                    {
+                                        times[1] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "2")
+                                    {
+                                        times[2] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "3")
+                                    {
+                                        times[3] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "4")
+                                    {
+                                        times[4] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "5")
+                                    {
+                                        times[5] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "6")
+                                    {
+                                        times[6] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "7")
+                                    {
+                                        times[7] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "8")
+                                    {
+                                        times[8] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "9")
+                                    {
+                                        times[9] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "10")
+                                    {
+                                        times[10] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "11")
+                                    {
+                                        times[11] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "12")
+                                    {
+                                        times[12] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "13")
+                                    {
+                                        times[13] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "14")
+                                    {
+                                        times[14] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "15")
+                                    {
+                                        times[15] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "16")
+                                    {
+                                        times[16] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "17")
+                                    {
+                                        times[17] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "18")
+                                    {
+                                        times[18] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "19")
+                                    {
+                                        times[19] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "20")
+                                    {
+                                        times[20] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "21")
+                                    {
+                                        times[21] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "22")
+                                    {
+                                        times[22] += 1;
+                                    }
+                                    else if (startTime.Hour.ToString() == "23")
+                                    {
+                                        times[23] += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't fetch times of activities");
+            }
+            return times;
         }
 
         public int[] GetTicketStats()
@@ -1407,6 +1624,72 @@ namespace DataRelay
                         {
                             _log.WriteTraceLine(this, $"Notes '{notes}' was not set!");
                             throw new WebFaultException<string>("Notes couldn't be set.",
+                                HttpStatusCode.InternalServerError);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't set notes for ticket.");
+            }
+        }
+
+        public int getPriority(int id)
+        {
+            int priority = -1;
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string getPriorityQuery = "Select Priority From Ticket Where id=@id";
+
+                    using (SqlCommand cmdGetNotes = new SqlCommand(getPriorityQuery, sqlConn))
+                    {
+                        cmdGetNotes.Parameters.AddWithValue("@id", id);
+
+                        using (SqlDataReader reader = cmdGetNotes.ExecuteReader())
+                        {
+                            if (reader.HasRows)
+                            {
+                                reader.Read();
+
+                                priority = reader.GetInt32(reader.GetOrdinal("Priority"));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                GenericErrorHandler(ex, "Couldn't retrieve ticket priority level.");
+            }
+            return priority;
+        }
+
+        public void setPriority(int id, int priority)
+        {
+            try
+            {
+                using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+                {
+                    sqlConn.Open();
+
+                    string setNotesQuery = "Update Ticket Set Priority=@priority Where id=@id";
+
+                    using (SqlCommand cmdSetNotes = new SqlCommand(setNotesQuery, sqlConn))
+                    {
+                        cmdSetNotes.Parameters.AddWithValue("@id", id);
+                        cmdSetNotes.Parameters.AddWithValue("@notes", priority);
+
+                        int result = cmdSetNotes.ExecuteNonQuery();
+
+                        if (result != 1)
+                        {
+                            _log.WriteTraceLine(this, $"Notes '{priority}' was not set!");
+                            throw new WebFaultException<string>("Priority couldn't be set.",
                                 HttpStatusCode.InternalServerError);
                         }
                     }

@@ -201,10 +201,24 @@ namespace DataRelay
 
         [OperationContract]
         [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Accounts/Month",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int[] GetMonthCount();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
             UriTemplate = "trails/api/1/Statistics/Activities",
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
         int[] GetActivityStats();
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Statistics/Activities/Time",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int[] GetActivityTimeStats();
 
         [OperationContract]
         [WebInvoke(Method = "GET",
@@ -219,8 +233,6 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.Bare)]
         int[] CompareTicketStats();
-
-        
 
         /// <summary>
         ///     Gets all the paths across every activity across every user. HTTP 500 if some error.
@@ -261,6 +273,21 @@ namespace DataRelay
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
         void setNotes(int id, string note);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET",
+            UriTemplate = "trails/api/1/Retrieve/Priority?id={id}",
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.Bare)]
+        int getPriority(int id);
+
+        [OperationContract]
+        [WebInvoke(Method = "POST",
+            UriTemplate = "trails/api/1/Set/Priority",
+            RequestFormat = WebMessageFormat.Json,
+            ResponseFormat = WebMessageFormat.Json,
+            BodyStyle = WebMessageBodyStyle.WrappedRequest)]
+        void setPriority(int id, int priority);
 
         [OperationContract]
         [WebInvoke(Method = "GET",
