@@ -287,7 +287,7 @@ namespace DataRelay
             RequestFormat = WebMessageFormat.Json,
             ResponseFormat = WebMessageFormat.Json,
             BodyStyle = WebMessageBodyStyle.WrappedRequest)]
-        void setPriority(int id, int priority);
+        void setPriority(int id);
 
         [OperationContract]
         [WebInvoke(Method = "GET",

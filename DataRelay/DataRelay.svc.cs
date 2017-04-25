@@ -1669,7 +1669,7 @@ namespace DataRelay
             return priority;
         }
 
-        public void setPriority(int id, int priority)
+        public void setPriority(int id)
         {
             try
             {
@@ -1677,18 +1677,18 @@ namespace DataRelay
                 {
                     sqlConn.Open();
 
-                    string setNotesQuery = "Update Ticket Set Priority=@priority Where id=@id";
+                    string setPriorityQuery = "Update Ticket Set Priority=@priority Where id=@id";
 
-                    using (SqlCommand cmdSetNotes = new SqlCommand(setNotesQuery, sqlConn))
+                    using (SqlCommand cmdSetNotes = new SqlCommand(setPriorityQuery, sqlConn))
                     {
                         cmdSetNotes.Parameters.AddWithValue("@id", id);
-                        cmdSetNotes.Parameters.AddWithValue("@notes", priority);
+                        cmdSetNotes.Parameters.AddWithValue("@priority", 1);
 
                         int result = cmdSetNotes.ExecuteNonQuery();
 
                         if (result != 1)
                         {
-                            _log.WriteTraceLine(this, $"Notes '{priority}' was not set!");
+                            _log.WriteTraceLine(this, $"Priority was not set!");
                             throw new WebFaultException<string>("Priority couldn't be set.",
                                 HttpStatusCode.InternalServerError);
                         }
