@@ -1132,7 +1132,7 @@ namespace DataRelay
                     string getActiveBrushQuery = "Select Count(*) From Ticket Where Type = \'Overgrown Brush\' AND active=1";
                     string getActiveWaterQuery = "Select Count(*) From Ticket Where Type = \'High Water\' AND active=1";
                     string getAtiveLitterQuery = "Select Count(*) From Ticket Where Type = \'Litter\' AND active=1";
-                    string getActiveTrashQuery = "Select Count(*) From Ticket Where Type = \'Full Trash\' AND active=1";
+                    string getActiveTrashQuery = "Select Count(*) From Ticket Where Type = \'Trash Full\' AND active=1";
                     string getActivePotholeQuery = "Select Count(*) From Ticket Where Type = \'Pothole\' AND active=1";
                     string getActiveOtherQuery = "Select Count(*) From Ticket Where Type = \'Other\' AND active=1";
 
@@ -1142,7 +1142,7 @@ namespace DataRelay
                     string getClosedBrushQuery = "Select Count(*) From Ticket Where Type = \'Overgrown Brush\' AND active=0";
                     string getClosedWaterQuery = "Select Count(*) From Ticket Where Type = \'High Water\' AND active=0";
                     string getClosedLitterQuery = "Select Count(*) From Ticket Where Type = \'Litter\' AND active=0";
-                    string getClosedTrashQuery = "Select Count(*) From Ticket Where Type = \'Full Trash\' AND active=0";
+                    string getClosedTrashQuery = "Select Count(*) From Ticket Where Type = \'Trash Full\' AND active=0";
                     string getClosedPotholeQuery = "Select Count(*) From Ticket Where Type = \'Pothole\' AND active=0";
                     string getClosedOtherQuery = "Select Count(*) From Ticket Where Type = \'Other\' AND active=0";
 
